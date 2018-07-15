@@ -20,7 +20,7 @@ def bot(event, context):
 
 
 def _get_reply(message):
-    reply = 'Sorry, I don\'t understand what you said.'
+    reply = 'Sorry, I don\'t understand what you mean.'
     if not message or not message.startswith('/'):
         return reply
 
@@ -29,12 +29,17 @@ def _get_reply(message):
         command = message.split(' ')[0][1:].lower()
         if command == 'crypto':
             data = _get('https://indodax.com/api/btc_idr/webdata')
-            reply = data['prices']
+            reply = {
+                f'{k[:-3].upper()}/IDR': '{:,}'.format(int(v))
+                for k, v in data['prices'].items()
+                if k.endswith('idr')
+            }
         elif command == 'mc':
             data = _get('https://api.mcsrvstat.us/1/mc.heyimkev.in')
             reply = {
-                'motd': data['motd']['clean'],
-                'players': data['players']['list']
+                'hostname': data['hostname'],
+                'online': not data.get('offline', False),
+                'players': data.get('players', {}).get('list', [])
             }
     except Exception as e:
         print(e)
@@ -42,7 +47,8 @@ def _get_reply(message):
 
     # Format as pretty JSON
     if not isinstance(reply, str):
-        reply = '```' + json.dumps(reply, indent=2) + '```'
+        reply = json.dumps(reply, indent=2)
+        reply = f'```\n{reply}\n```'
 
     return reply
 

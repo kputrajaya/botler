@@ -1,0 +1,20 @@
+service: botler
+
+provider:
+  name: aws
+  runtime: python3.6
+  region: ap-southeast-1
+  memorySize: 256
+  timeout: 10
+  versionFunctions: false
+  environment:
+    TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
+
+functions:
+  bot:
+    handler: handler.bot
+    events:
+      - http:
+          path: bot
+          method: post
+          cors: true

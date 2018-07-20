@@ -34,6 +34,8 @@ def _get_reply(message):
                 for k, v in data['prices'].items()
                 if k.endswith('idr')
             }
+        elif command == 'ip':
+            reply = _get('https://api.ipify.org/?format=json')
         elif command == 'mc':
             data = _get('https://api.mcsrvstat.us/1/mc.heyimkev.in')
             reply = {

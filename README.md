@@ -6,10 +6,10 @@ Due to its simplicity, can be used as base for making other serverless Telegram 
 
 ## Bot commands
 
-* `/bca` - Get latest [BCA](https://ibank.klikbca.com/) statements.
+* `/bca` - Get latest [BCA](https://ibank.klikbca.com/) statements by crawling.
 * `/crypto` - Get crypto prices from [Indodax](https://indodax.com/).
 * `/ip` - Get server's public IP address from [Ipify](https://www.ipify.org/).
-* `/mc` - Get my Minecraft server status via [Minecraft Server Status](https://api.mcsrvstat.us/).
+* `/mc` - Get Minecraft server status via [Minecraft Server Status](https://api.mcsrvstat.us/).
 
 ## Built with
 

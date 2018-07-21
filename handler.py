@@ -1,6 +1,7 @@
 import json
 import os
-from urllib import request
+
+import utils
 
 
 def bot(event, context):
@@ -21,31 +22,24 @@ def bot(event, context):
 
 def _get_reply(message):
     reply = 'Sorry, I don\'t understand what you mean.'
-    if not message or not message.startswith('/'):
+
+    # Get arguments
+    command, args = utils.parse_message(message)
+    if not command:
         return reply
 
     # Process commands
     try:
-        command = message.split(' ')[0][1:].lower()
         if command == 'crypto':
-            data = _get('https://indodax.com/api/btc_idr/webdata')
-            reply = {
-                f'{k[:-3].upper()}/IDR': '{:,}'.format(int(v))
-                for k, v in data['prices'].items()
-                if k.endswith('idr')
-            }
+            reply = utils.get_crypto_prices()
         elif command == 'ip':
-            reply = _get('https://api.ipify.org/?format=json')
+            reply = utils.get_ip_address()
         elif command == 'mc':
-            data = _get('https://api.mcsrvstat.us/1/mc.heyimkev.in')
-            reply = {
-                'hostname': data['hostname'],
-                'online': not data.get('offline', False),
-                'players': data.get('players', {}).get('list', [])
-            }
+            hostname = args[0] if args else 'mc.heyimkev.in'
+            reply = utils.get_mc_server_status(hostname)
     except Exception as e:
-        print(e)
         reply = 'Sorry, something went wrong.'
+        print(f'ERROR: {e}')
 
     # Format as pretty JSON
     if not isinstance(reply, str):
@@ -56,26 +50,12 @@ def _get_reply(message):
 
 
 def _send_reply(chat_id, text):
-    # Prepare URL, headers, and data
     token = os.environ['TELEGRAM_TOKEN']
-    url = f'https://api.telegram.org/bot{token}/sendMessage'
-    headers = {'Content-Type': 'application/json'}
-    data = {
-        'chat_id': chat_id,
-        'text': text,
-        'parse_mode': 'Markdown'
-    }
-
-    # Call Telegram API
-    req = request.Request(
-        url,
-        headers=headers,
-        data=json.dumps(data).encode('utf-8'))
-    request.urlopen(req)
-
-
-def _get(url):
-    res = request.urlopen(url)
-    encoding = res.info().get_param('charset') or 'utf-8'
-    data = json.loads(res.read().decode(encoding))
-    return data
+    utils.post(
+        f'https://api.telegram.org/bot{token}/sendMessage',
+        {'Content-Type': 'application/json'},
+        {
+            'chat_id': chat_id,
+            'text': text,
+            'parse_mode': 'Markdown'
+        })

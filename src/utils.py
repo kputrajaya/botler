@@ -78,7 +78,12 @@ def get_bca_statements(username, password):
                 x.strip()
                 for x in cells[1].contents
                 if x and isinstance(x, str) and x[0] not in ('<', '\n')]
-            description = ' '.join(contents[:-2])
+            description = ' '.join(contents[:-2]) \
+                .replace('KARTU DEBIT', '') \
+                .replace('BYR VIA E-BANKING', '') \
+                .replace('KR OTOMATIS', '') \
+                .replace(date, '') \
+                .strip()
             sign = '-' if cells[2].text == 'DB' else '+'
             amount = f'{sign} {contents[-1]}'
             transactions.append([date, description, amount])

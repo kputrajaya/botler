@@ -1,7 +1,8 @@
+import base64
 import json
 import os
 
-import utils
+from src import utils
 
 
 def bot(event, context):
@@ -30,13 +31,21 @@ def _get_reply(message):
 
     # Process commands
     try:
-        if command == 'crypto':
+        if command == 'bca':
+            credentials = base64.b64decode(args[0]).decode('utf-8').split(':')
+            username = credentials[0]
+            password = credentials[1]
+            reply = utils.get_bca_statements(username, password)
+        elif command == 'crypto':
             reply = utils.get_crypto_prices()
         elif command == 'ip':
             reply = utils.get_ip_address()
         elif command == 'mc':
             hostname = args[0] if args else 'mc.heyimkev.in'
             reply = utils.get_mc_server_status(hostname)
+        elif command == 'start':
+            reply = ('Hello there, please see command list to see '
+                     'what I can help you with.')
     except Exception as e:
         reply = 'Sorry, something went wrong.'
         print(f'ERROR: {e}')

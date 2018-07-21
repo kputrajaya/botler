@@ -1,0 +1,13 @@
+{
+  "name": "botler",
+  "version": "1.0.0",
+  "description": "Telegram bot on AWS Lambda that connects to APIs.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kiloev/botler.git"
+  },
+  "author": "Kevin Putrajaya",
+  "dependencies": {
+    "serverless-python-requirements": "^4.1.1"
+  }
+}

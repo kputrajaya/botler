@@ -12,9 +12,16 @@ provider:
 
 functions:
   bot:
-    handler: handler.bot
+    handler: src.handler.bot
     events:
       - http:
           path: bot
           method: post
           cors: true
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux

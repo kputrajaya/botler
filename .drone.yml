@@ -4,6 +4,11 @@ name: default
 steps:
 - name: publish
   image: python:3.7-alpine
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: AWS_SECRET_ACCESS_KEY
   volumes:
   - name: npm
     path: /drone/src/node_modules

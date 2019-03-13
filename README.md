@@ -19,7 +19,8 @@ Due to its simplicity, can be used as base for making other serverless Telegram 
 * [Serverless Python Requirements](https://github.com/UnitedIncome/serverless-python-requirements)
 * [RoboBrowser](https://github.com/jmcarp/robobrowser)
 * [AWS Lambda](https://aws.amazon.com/lambda/)
-* [Python 3.6](https://www.python.org/)
+* [Python 3.7](https://www.python.org/)
+- [Drone](https://drone.io/)
 
 ## Related tutorials
 

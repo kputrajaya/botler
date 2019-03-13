@@ -90,16 +90,17 @@ def get_bca_statements(username, password):
                 .replace('  ', ' ') \
                 .replace(date, '') \
                 .strip()
+            description = f'{date} - {description}'
             sign = '-' if cells[2].text == 'DB' else '+'
             amount = f'{sign} {contents[-1]}'
-            transactions.append([date, description, amount])
+            transactions.append([description, amount])
 
         # Parse balance
         balance_table = tables[2]
         balance_row = balance_table.select('tr')[-1]
         balance = balance_row.select('td')[-1].text
 
-        transactions.append(['CURRENT', 'SAVINGS BALANCE', f'+ {balance}'])
+        transactions.append(['CURRENT BALANCE', f'+ {balance}'])
         return transactions
     finally:
         # Logout

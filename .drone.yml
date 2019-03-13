@@ -8,7 +8,7 @@ steps:
   - name: npm
     path: /drone/src/node_modules
   commands:
-  - apt-get update && apt-get install python3.6
+  - apt-get update && apt-get install -y python3.6
   - npm install -g serverless
   - npm install
   - serverless deploy

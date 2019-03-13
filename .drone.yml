@@ -4,9 +4,18 @@ name: default
 steps:
 - name: deploy
   image: giusedroid/drone-serverless
+  volumes:
+  - name: npm
+    path: /drone/src/node_modules
   commands:
+  - sudo apt-get update && sudo apt-get install python3.6
   - npm install
   - serverless deploy
+
+volumes:
+- name: npm
+  host:
+    path: /drone/npm
 
 when:
   event:

@@ -80,8 +80,13 @@ def get_bca_statements(username, password):
                 if x and isinstance(x, str) and x[0] not in ('<', '\n')]
             description = ' '.join(contents[:-2]) \
                 .replace('KARTU DEBIT', '') \
+                .replace('KARTU KREDIT', '') \
                 .replace('BYR VIA E-BANKING', '') \
+                .replace('TRSF E-BANKING', '') \
                 .replace('KR OTOMATIS', '') \
+                .replace('SWITCHING CR TRANSFER', '') \
+                .replace(' - ', ' ') \
+                .replace('  ', ' ') \
                 .replace(date, '') \
                 .strip()
             sign = '-' if cells[2].text == 'DB' else '+'

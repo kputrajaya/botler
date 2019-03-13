@@ -93,7 +93,8 @@ def get_bca_statements(username, password):
         balance_row = balance_table.select('tr')[-1]
         balance = balance_row.select('td')[-1].text
 
-        return {'transactions': transactions, 'balance': balance}
+        transactions.append(['NOW', 'BALANCE', f'+ {balance}'])
+        return transactions
     finally:
         # Logout
         browser.open(f'{hostname}/authentication.do?value(actions)=logout')

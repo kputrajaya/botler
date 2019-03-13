@@ -2,13 +2,14 @@ kind: pipeline
 name: default
 
 steps:
-- name: deploy
-  image: giusedroid/drone-serverless
+- name: publish
+  image: node:11.11.0
   volumes:
   - name: npm
     path: /drone/src/node_modules
   commands:
   - sudo apt-get update && sudo apt-get install python3.6
+  - npm install -g serverless
   - npm install
   - serverless deploy
 

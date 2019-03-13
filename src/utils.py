@@ -85,7 +85,7 @@ def get_bca_statements(username, password):
                 .replace('TRSF E-BANKING DB', '') \
                 .replace('TRSF E-BANKING CR', '') \
                 .replace('KR OTOMATIS', '') \
-                .replace('SWITCHING CR TRANSFER', '') \
+                .replace('SWITCHING CR TRANSFER  DR', '') \
                 .replace(' - - ', ' ') \
                 .replace(' - ', ' ') \
                 .replace('  ', ' ') \

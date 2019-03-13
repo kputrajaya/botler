@@ -16,9 +16,8 @@ steps:
     path: /drone/src/node_modules
   commands:
   - apk add --update nodejs nodejs-npm
-  - npm install -g serverless
-  - npm install
-  - serverless deploy
+  - npm install serverless
+  - npm run serverless deploy
 
 volumes:
 - name: npm

@@ -5,6 +5,8 @@ steps:
 - name: deploy
   image: giusedroid/drone-serverless
   action: deploy
+  commands:
+  - npm install
 
 when:
   event:

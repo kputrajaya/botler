@@ -83,6 +83,7 @@ def get_bca_statements(username, password):
                 .replace('KARTU KREDIT', '') \
                 .replace('BYR VIA E-BANKING', '') \
                 .replace('TRSF E-BANKING DB', '') \
+                .replace('TRSF E-BANKING CR', '') \
                 .replace('KR OTOMATIS', '') \
                 .replace('SWITCHING CR TRANSFER', '') \
                 .replace(' - - ', ' ') \

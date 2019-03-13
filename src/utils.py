@@ -84,7 +84,8 @@ def get_bca_statements(username, password):
                 .replace('BYR VIA E-BANKING', '') \
                 .replace('TRSF E-BANKING DB', '') \
                 .replace('KR OTOMATIS', '') \
-                .replace('SWITCHING CR TRANSFER DR', '') \
+                .replace('SWITCHING CR TRANSFER', '') \
+                .replace(' - - ', ' ') \
                 .replace(' - ', ' ') \
                 .replace('  ', ' ') \
                 .replace(date, '') \
@@ -98,7 +99,7 @@ def get_bca_statements(username, password):
         balance_row = balance_table.select('tr')[-1]
         balance = balance_row.select('td')[-1].text
 
-        transactions.append(['NOW', 'BALANCE', f'+ {balance}'])
+        transactions.append(['CURRENT', 'SAVINGS BALANCE', f'+ {balance}'])
         return transactions
     finally:
         # Logout

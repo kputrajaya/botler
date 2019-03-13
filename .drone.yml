@@ -11,10 +11,18 @@ steps:
       from_secret: AWS_SECRET_ACCESS_KEY
     TELEGRAM_TOKEN:
       from_secret: TELEGRAM_TOKEN
+  volumes:
+  - name: npm
+    path: /drone/src/node_modules
   commands:
   - apk add --update nodejs-npm
-  - npm install -g serverless
-  - serverless deploy
+  - npm install
+  - $(npm bin)/serverless deploy
+
+volumes:
+- name: npm
+  host:
+    path: /drone/npm
 
 when:
   event:

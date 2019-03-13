@@ -3,12 +3,12 @@ name: default
 
 steps:
 - name: publish
-  image: node:11.11.0
+  image: python:3.7-alpine
   volumes:
   - name: npm
     path: /drone/src/node_modules
   commands:
-  - apt-get update && apt-get install -y python3.7
+  - apk add --update nodejs nodejs-npm
   - npm install -g serverless
   - npm install
   - serverless deploy

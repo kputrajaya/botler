@@ -41,7 +41,7 @@ def _get_reply(message):
         elif command == 'ip':
             reply = utils.get_ip_address()
         elif command == 'mc':
-            hostname = args[0] if args else 'mc.heyimkev.in'
+            hostname = args[0] if args else 'mc.kputrajaya.com'
             reply = utils.get_mc_server_status(hostname)
         elif command == 'start':
             reply = ('Hello there, please see command list to see '

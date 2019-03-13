@@ -7,7 +7,7 @@
     "url": "git+https://github.com/kiloev/botler.git"
   },
   "author": "Kevin Putrajaya",
-  "dependencies": {
+  "devDependencies": {
     "serverless": "^1.38.0",
     "serverless-python-requirements": "^4.1.1"
   }

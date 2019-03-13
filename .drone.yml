@@ -1,0 +1,7 @@
+kind: pipeline
+name: default
+
+steps:
+- name: deploy
+  image: giusedroid/drone-serverless
+  action: deploy

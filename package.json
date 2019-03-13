@@ -8,6 +8,7 @@
   },
   "author": "Kevin Putrajaya",
   "dependencies": {
+    "serverless": "^1.38.0",
     "serverless-python-requirements": "^4.1.1"
   }
 }

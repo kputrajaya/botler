@@ -17,7 +17,7 @@ steps:
   commands:
   - apk add --update nodejs nodejs-npm
   - npm install serverless
-  - npm run serverless deploy
+  - $(npm bin)/serverless deploy
 
 volumes:
 - name: npm

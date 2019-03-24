@@ -20,7 +20,7 @@ Due to its simplicity, can be used as base for making other serverless Telegram 
 * [RoboBrowser](https://github.com/jmcarp/robobrowser)
 * [AWS Lambda](https://aws.amazon.com/lambda/)
 * [Python 3.7](https://www.python.org/)
-- [Drone](https://drone.io/)
+* [Drone](https://drone.io/)
 
 ## Related tutorials
 

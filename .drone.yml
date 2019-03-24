@@ -2,30 +2,30 @@ kind: pipeline
 name: default
 
 steps:
-- name: publish
-  image: python:3.7-alpine
-  environment:
-    AWS_ACCESS_KEY_ID:
-      from_secret: AWS_ACCESS_KEY_ID
-    AWS_SECRET_ACCESS_KEY:
-      from_secret: AWS_SECRET_ACCESS_KEY
-    TELEGRAM_TOKEN:
-      from_secret: TELEGRAM_TOKEN
-  volumes:
-  - name: npm
-    path: /drone/src/node_modules
-  commands:
-  - apk add --update nodejs-npm
-  - npm install
-  - $(npm bin)/serverless deploy
+  - name: publish
+    image: python:3.7-alpine
+    environment:
+      AWS_ACCESS_KEY_ID:
+        from_secret: AWS_ACCESS_KEY_ID
+      AWS_SECRET_ACCESS_KEY:
+        from_secret: AWS_SECRET_ACCESS_KEY
+      TELEGRAM_TOKEN:
+        from_secret: TELEGRAM_TOKEN
+    volumes:
+      - name: npm
+        path: /drone/src/node_modules
+    commands:
+      - apk add --update nodejs-npm
+      - npm install
+      - $(npm bin)/serverless deploy
 
 volumes:
-- name: npm
-  host:
-    path: /drone/npm
+  - name: npm
+    host:
+      path: /drone/npm
 
 when:
   event:
-  - push
+    - push
   branch:
-  - master
+    - master

@@ -14,7 +14,11 @@ steps:
     volumes:
       - name: npm
         path: /drone/src/node_modules
+      - name: pip
+        path: /.pip
     commands:
+      - pip install --cache-dir=/.pip flake8
+      - flake8
       - apk add --update nodejs-npm
       - npm install
       # - $(npm bin)/serverless deploy
@@ -24,6 +28,9 @@ volumes:
   - name: npm
     host:
       path: /drone/npm
+  - name: pip
+    host:
+      path: /drone/pip
 
 when:
   event:

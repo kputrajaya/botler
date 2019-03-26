@@ -1,6 +1,6 @@
 # Botler
 
-[![Build Status](https://drone.kputrajaya.com/api/badges/kiloev/botler/status.svg)](https://drone.kputrajaya.com/kiloev/botler)
+[![Build](https://drone.kputrajaya.com/api/badges/kiloev/botler/status.svg)](https://drone.kputrajaya.com/kiloev/botler)
 
 Telegram bot on AWS Lambda that connects to APIs.
 

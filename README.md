@@ -2,9 +2,7 @@
 
 [![Build](https://drone.kputrajaya.com/api/badges/kiloev/botler/status.svg)](https://drone.kputrajaya.com/kiloev/botler)
 
-Telegram bot on AWS Lambda that connects to APIs.
-
-Due to its simplicity, can be used as base for making other serverless Telegram bots.
+Telegram bot on AWS Lambda that connects to various APIs.
 
 ## Bot commands
 

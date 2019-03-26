@@ -19,8 +19,3 @@ Telegram bot on AWS Lambda that connects to various APIs.
 * `/crypto` - Get crypto prices from [Indodax](https://indodax.com/).
 * `/ip` - Get server's public IP address from [Ipify](https://www.ipify.org/).
 * `/mc` - Get Minecraft server status via [Minecraft Server Status](https://api.mcsrvstat.us/).
-
-## Related tutorials
-
-* [Serverless Telegram bot on AWS Lambda](https://hackernoon.com/serverless-telegram-bot-on-aws-lambda-851204d4236c)
-* [Serverless Python Packaging](https://serverless.com/blog/serverless-python-packaging/)

@@ -17,7 +17,7 @@ steps:
       - name: pip
         path: /.pip
     commands:
-      - pip install --cache-dir=/.pip flake8
+      - pip install --cache-dir=/.pip flake8 flake8-import-order
       - flake8
       - apk add --update nodejs-npm
       - npm install

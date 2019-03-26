@@ -17,7 +17,8 @@ steps:
     commands:
       - apk add --update nodejs-npm
       - npm install
-      - $(npm bin)/serverless deploy
+      # - $(npm bin)/serverless deploy
+      - $(npm bin)/serverless deploy function -f bot
 
 volumes:
   - name: npm

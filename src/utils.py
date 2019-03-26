@@ -2,8 +2,8 @@ import datetime
 import json
 from urllib import request
 
-from robobrowser.forms.fields import Input
 from robobrowser import RoboBrowser
+from robobrowser.forms.fields import Input
 
 
 def parse_message(message):

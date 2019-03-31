@@ -6,14 +6,13 @@ Telegram bot on AWS Lambda that connects to various APIs.
 
 ## Built with
 
-* [Serverless](https://serverless.com/)
-* [Serverless Python Requirements](https://github.com/UnitedIncome/serverless-python-requirements)
+* [Python](https://www.python.org/)
 * [RoboBrowser](https://github.com/jmcarp/robobrowser)
+* [Serverless](https://serverless.com/)
 * [AWS Lambda](https://aws.amazon.com/lambda/)
-* [Python 3.7](https://www.python.org/)
 * [Drone](https://drone.io/)
 
-## Bot commands
+## Bot Commands
 
 * `/bca` - Get latest [BCA](https://ibank.klikbca.com/) statements by crawling.
 * `/crypto` - Get crypto prices from [Indodax](https://indodax.com/).

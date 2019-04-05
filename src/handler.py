@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+import yaml
 
 from src import utils
 
@@ -52,7 +53,7 @@ def _get_reply(message):
 
     # Format as pretty JSON
     if not isinstance(reply, str):
-        reply = json.dumps(reply, indent=2)
+        reply = yaml.dump(reply, default_flow_style=False)
         reply = f'```\n{reply}\n```'
 
     return reply

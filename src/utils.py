@@ -25,14 +25,6 @@ def get_bca_statements(username, password):
                    'Mac OS X) AppleWebKit/604.1.38 (KHTML, like '
                    'Gecko) Version/11.0 Mobile/15A372 Safari/604.1')
     hostname = 'https://m.klikbca.com'
-    now = datetime.datetime.now() + datetime.timedelta(hours=7)
-    last_week = now - datetime.timedelta(days=6)
-    start_d = last_week.strftime('%d')
-    start_m = last_week.strftime('%m')
-    start_y = last_week.strftime('%Y')
-    end_d = now.strftime('%d')
-    end_m = now.strftime('%m')
-    end_y = now.strftime('%Y')
 
     try:
         # Login
@@ -44,72 +36,15 @@ def get_bca_statements(username, password):
         if 'accountstmt' not in browser.response.text:
             raise ValueError('Failed to login.')
 
-        # Go to statements
-        form = browser.get_form(method='post')
-        form.action = 'accountstmt.do?value(actions)=acctstmtview'
-        _add_form_data(form, {
-            'r1': '1',
-            'value(D1)': '0',
-            'value(startDt)': start_d,
-            'value(startMt)': start_m,
-            'value(startYr)': start_y,
-            'value(endDt)': end_d,
-            'value(endMt)': end_m,
-            'value(endYr)': end_y,
-        })
-        browser.submit_form(form)
-        if 'IDR' not in browser.response.text:
-            raise ValueError('Failed to get statements data.')
-
-        # Get data tables
-        tables = browser.select('table[cellpadding=3] table')
-        if len(tables) != 3:
-            raise ValueError('Statements data is in unexpected format.')
-
-        # Parse transactions
-        transaction_table = tables[1]
-        transactions = {}
-        for transaction in transaction_table.select('tr')[1:]:
-            cells = transaction.select('td')
-            if len(cells) < 3:
-                raise ValueError('Transaction data is in unexpected format.')
-
-            date = cells[0].text.strip()
-            contents = [
-                x.strip()
-                for x in cells[1].contents
-                if x and isinstance(x, str) and x[0] not in ('<', '\n')]
-            description = ' '.join(contents[:-2])
-            for pattern, sub in (
-                (r'KARTU (DEBIT|KREDIT)', ''),
-                (r'(BYR VIA|TRSF) E-BANKING( (DB|CR))?', ''),
-                (r'KR OTOMATIS', ''),
-                (r'TRANSFER( (DB|CR))?', ''),
-                (r'SWITCHING( (DB|CR))?( TRANSFER)?', ''),
-                (r'TANGGAL :', ''),
-                (r'\d{2}/\d{2}', ''),
-                (r'\d{15,}', ''),
-                (r' \d{2,4} ', ' '),
-                (r' -', ''),
-                (r'\s+', ' '),
-            ):
-                description = re.sub(pattern, sub, description)
-            description = description.strip()
-            amount = contents[-1]
-            if cells[2].text == 'DB':
-                amount = f'({amount})'
-            transactions[date] = transactions.get(date, [])
-            transactions[date].append([description, amount])
-
-        # Parse balance
-        balance_table = tables[2]
-        balance_row = balance_table.select('tr')[-1]
-        balance = balance_row.select('td')[-1].text
-
-        return {
-            'transactions': transactions,
-            'balance': balance
+        result = {
+            'balance': None,
+            'transactions': {}
         }
+        for i in range(4):
+            period_result = _get_bca_period_statements(browser, i)
+            result['balance'] = result['balance'] or period_result['balance']
+            result['transactions'] = {period_result['transactions'], result['transactions']}
+        return result
     finally:
         # Logout
         browser.open(f'{hostname}/authentication.do?value(actions)=logout')
@@ -160,3 +95,81 @@ def post(url, headers, data):
 def _add_form_data(form, data):
     for key, value in data.items():
         form.add_field(Input(f'<input name="{key}" value="{value}"/>'))
+
+
+def _get_bca_period_statements(browser, backdate_week=0):
+    end_date = datetime.datetime.now() + datetime.timedelta(hours=7) - datetime.timedelta(days=backdate_week * 7)
+    start_date = end_date - datetime.timedelta(days=backdate_week * 7 - 6)
+    start_d = start_date.strftime('%d')
+    start_m = start_date.strftime('%m')
+    start_y = start_date.strftime('%Y')
+    end_d = end_date.strftime('%d')
+    end_m = end_date.strftime('%m')
+    end_y = end_date.strftime('%Y')
+
+    # Go to statements
+    form = browser.get_form(method='post')
+    form.action = 'accountstmt.do?value(actions)=acctstmtview'
+    _add_form_data(form, {
+        'r1': '1',
+        'value(D1)': '0',
+        'value(startDt)': start_d,
+        'value(startMt)': start_m,
+        'value(startYr)': start_y,
+        'value(endDt)': end_d,
+        'value(endMt)': end_m,
+        'value(endYr)': end_y,
+    })
+    browser.submit_form(form)
+    if 'IDR' not in browser.response.text:
+        raise ValueError('Failed to get statements data.')
+
+    # Get data tables
+    tables = browser.select('table[cellpadding=3] table')
+    if len(tables) != 3:
+        raise ValueError('Statements data is in unexpected format.')
+
+    # Parse transactions
+    transaction_table = tables[1]
+    transactions = {}
+    for transaction in transaction_table.select('tr')[1:]:
+        cells = transaction.select('td')
+        if len(cells) < 3:
+            raise ValueError('Transaction data is in unexpected format.')
+
+        date = cells[0].text.strip()
+        contents = [
+            x.strip()
+            for x in cells[1].contents
+            if x and isinstance(x, str) and x[0] not in ('<', '\n')]
+        description = ' '.join(contents[:-2])
+        for pattern, sub in (
+            (r'KARTU (DEBIT|KREDIT)', ''),
+            (r'(BYR VIA|TRSF) E-BANKING( (DB|CR))?', ''),
+            (r'KR OTOMATIS', ''),
+            (r'TRANSFER( (DB|CR))?', ''),
+            (r'SWITCHING( (DB|CR))?( TRANSFER)?', ''),
+            (r'TANGGAL :', ''),
+            (r'\d{2}/\d{2}', ''),
+            (r'\d{15,}', ''),
+            (r' \d{2,4} ', ' '),
+            (r' -', ''),
+            (r'\s+', ' '),
+        ):
+            description = re.sub(pattern, sub, description)
+        description = description.strip()
+        amount = contents[-1]
+        if cells[2].text == 'DB':
+            amount = f'({amount})'
+        transactions[date] = transactions.get(date, [])
+        transactions[date].append([description, amount])
+
+    # Parse balance
+    balance_table = tables[2]
+    balance_row = balance_table.select('tr')[-1]
+    balance = balance_row.select('td')[-1].text
+
+    return {
+        'balance': balance,
+        'transactions': transactions
+    }

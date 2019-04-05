@@ -138,7 +138,7 @@ def _get_bca_period_statements(browser, backdate_week):
             raise ValueError('Transaction data is in unexpected format.')
 
         date = cells[0].text.strip()
-        date = date[:-2] + '/' + date[:2]
+        date = date[-2:] + '/' + date[:2]
         contents = [
             x.strip()
             for x in cells[1].contents

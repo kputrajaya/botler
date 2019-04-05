@@ -87,6 +87,7 @@ def get_bca_statements(username, password):
                 (r'SWITCHING( (DB|CR))?( TRANSFER)?', ''),
                 (r'TANGGAL :', ''),
                 (r'\d{2}/\d{2}', ''),
+                (r'\d{15,}', ''),
                 (r' \d{2,4} ', ' '),
                 (r' -', ''),
                 (r'\s+', ' '),

@@ -67,7 +67,7 @@ def get_bca_statements(username, password):
 
         # Parse transactions
         transaction_table = tables[1]
-        transactions = []
+        transactions = {}
         for transaction in transaction_table.select('tr')[1:]:
             cells = transaction.select('td')
             if len(cells) < 3:
@@ -96,7 +96,8 @@ def get_bca_statements(username, password):
             amount = contents[-1]
             if cells[2].text == 'DB':
                 amount = f'({amount})'
-            transactions.append([date, description, amount])
+            transactions[date] = transactions.get(date, [])
+            transactions[date].append([description, amount])
 
         # Parse balance
         balance_table = tables[2]

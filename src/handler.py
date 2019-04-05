@@ -54,7 +54,7 @@ def _get_reply(message):
 
     # Format as pretty JSON
     if not isinstance(reply, str):
-        reply = yaml.dump(reply, default_style="'", default_flow_style=False)
+        reply = yaml.dump(reply, default_flow_style=False)
         reply = f'```\n{reply}\n```'
 
     return reply

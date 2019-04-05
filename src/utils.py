@@ -86,6 +86,7 @@ def get_bca_statements(username, password):
                 .replace('TRSF E-BANKING CR', '') \
                 .replace('KR OTOMATIS', '') \
                 .replace('SWITCHING CR TRANSFER', '') \
+                .replace('SWITCHING CR', '') \
                 .replace(' - - ', ' ') \
                 .replace(' - ', ' ') \
                 .replace('  ', ' ') \
@@ -112,7 +113,7 @@ def get_bca_statements(username, password):
 def get_crypto_prices():
     res = get('https://indodax.com/api/btc_idr/webdata')
     data = {
-        f'{k[:-3].upper()}': '{:,}'.format(int(v))
+        k[:-3]: int(v) if int(v) < 1000 else '{:,}'.format(int(v))
         for k, v in res['prices'].items()
         if k.endswith('idr')
     }

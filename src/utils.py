@@ -144,18 +144,19 @@ def _get_bca_period_statements(browser, backdate_week):
             if x and isinstance(x, str) and x[0] not in ('<', '\n')]
         description = ' ' + ' '.join(contents[:-2]) + ' '
         for pattern, sub in (
-            (r' KARTU (DEBIT|KREDIT) ', ''),
-            (r' (DB|CR) ', ''),
-            (r' (BYR VIA|TRSF) E-BANKING ', ''),
-            (r' KR OTOMATIS ', ''),
-            (r' TRANSFER ', ''),
-            (r' SWITCHING ', ''),
-            (r' TANGGAL :', ''),
-            (r' \d{2}/\d{2} ', ''),
-            (r' \d{15,} ', ''),
-            (r' \d{2,4} ', ' '),
-            (r' - ', ''),
-            (r'\s+', ' '),
+            (r' KARTU (DEBIT|KREDIT) ', ' '),
+            (r' (DB|DR|CR) ', ' '),
+            (r' (BYR VIA|TRSF) E-BANKING ', ' '),
+            (r' KR OTOMATIS ', ' '),
+            (r' TRANSFER ', ' '),
+            (r' SWITCHING ', ' '),
+            (r' TANGGAL :', ' '),
+            (r' [\d]{2}/[\d]{2} ', ' '),
+            (r' [\d]{3,5}/FTFVA/WS[\d]{4,6} ', ' '),
+            (r' WSID[\d]{7,8} ', ' '),
+            (r' [\d]{2,} ', ' '),
+            (r' (- )+', ' '),
+            (r'[\s]+', ' '),
         ):
             description = re.sub(pattern, sub, description)
         description = description.strip()

@@ -87,14 +87,15 @@ def get_bca_statements(username, password):
                 .replace('KR OTOMATIS', '') \
                 .replace('SWITCHING CR TRANSFER', '') \
                 .replace('SWITCHING CR', '') \
+                .replace('TANGGAL :', '') \
                 .replace(' - - ', ' ') \
                 .replace(' - ', ' ') \
                 .replace('  ', ' ') \
                 .replace(date, '') \
                 .strip()
             sign = '-' if cells[2].text == 'DB' else '+'
-            amount = f'{sign} {contents[-1]}'
-            transactions.append([date, description, amount])
+            amount = f'[{sign}] {contents[-1]}'
+            transactions.append([date, description[:45], amount])
 
         # Parse balance
         balance_table = tables[2]

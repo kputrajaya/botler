@@ -84,6 +84,7 @@ def get_bca_statements(username, password):
                 (r'KARTU (DEBIT|KREDIT)', ''),
                 (r'(BYR VIA|TRSF) E-BANKING( (DB|CR))?', ''),
                 (r'KR OTOMATIS', ''),
+                (r'TRANSFER( (DB|CR))?', ''),
                 (r'SWITCHING( (DB|CR))?( TRANSFER)?', ''),
                 (r'TANGGAL :', ''),
                 (r'\d{2}/\d{2}', ''),

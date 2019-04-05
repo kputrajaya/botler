@@ -114,7 +114,7 @@ def get_bca_statements(username, password):
 def get_crypto_prices():
     res = get('https://indodax.com/api/btc_idr/webdata')
     data = {
-        k[:-3]: int(v) if int(v) < 1000 else '{:,}'.format(int(v))
+        k[:-3].upper(): int(v) if int(v) < 1000 else '{:,}'.format(int(v))
         for k, v in res['prices'].items()
         if k.endswith('idr')
     }

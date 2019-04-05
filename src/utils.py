@@ -97,7 +97,8 @@ def _add_form_data(form, data):
 
 
 def _get_bca_period_statements(browser, backdate_week):
-    end_date = datetime.datetime.now() + datetime.timedelta(hours=7) - datetime.timedelta(days=backdate_week * 7)
+    now = datetime.datetime.now() + datetime.timedelta(hours=7)
+    end_date = now - datetime.timedelta(days=backdate_week * 7)
     start_date = end_date - datetime.timedelta(days=6)
     start_d = start_date.strftime('%d')
     start_m = start_date.strftime('%m')
@@ -136,12 +137,19 @@ def _get_bca_period_statements(browser, backdate_week):
         if len(cells) < 3:
             raise ValueError('Transaction data is in unexpected format.')
 
-        date = cells[0].text.strip()
-        date = date[-2:] + '/' + date[:2]
         contents = [
             x.strip()
             for x in cells[1].contents
             if x and isinstance(x, str) and x[0] not in ('<', '\n')]
+
+        # Prepare date
+        date = cells[0].text.strip()
+        date = (
+            now.strftime('%m/%d')
+            if date == 'PEND'
+            else date[-2:] + '/' + date[:2])
+
+        # Prepare description
         description = ' ' + ' '.join(contents[:-2]) + ' '
         for pattern, sub in (
             (r' M-BCA ', ' '),
@@ -161,9 +169,13 @@ def _get_bca_period_statements(browser, backdate_week):
         ):
             description = re.sub(pattern, sub, description)
         description = description.strip()
+
+        # Prepare amount
         amount = contents[-1]
         if cells[2].text == 'DB':
             amount = f'({amount})'
+
+        # Attach to transactions
         transactions[date] = transactions.get(date, [])
         transactions[date].append([description, amount])
 

@@ -6,7 +6,6 @@ Telegram bot on AWS Lambda that connects to various APIs.
 
 ## Built With
 
-* [Python](https://www.python.org/)
 * [RoboBrowser](https://github.com/jmcarp/robobrowser)
 * [Serverless](https://serverless.com/)
 * [AWS Lambda](https://aws.amazon.com/lambda/)

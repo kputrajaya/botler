@@ -97,9 +97,9 @@ def _add_form_data(form, data):
         form.add_field(Input(f'<input name="{key}" value="{value}"/>'))
 
 
-def _get_bca_period_statements(browser, backdate_week=0):
+def _get_bca_period_statements(browser, backdate_week):
     end_date = datetime.datetime.now() + datetime.timedelta(hours=7) - datetime.timedelta(days=backdate_week * 7)
-    start_date = end_date - datetime.timedelta(days=backdate_week * 7 - 6)
+    start_date = end_date - datetime.timedelta(days=6)
     start_d = start_date.strftime('%d')
     start_m = start_date.strftime('%m')
     start_y = start_date.strftime('%Y')
@@ -142,18 +142,19 @@ def _get_bca_period_statements(browser, backdate_week=0):
             x.strip()
             for x in cells[1].contents
             if x and isinstance(x, str) and x[0] not in ('<', '\n')]
-        description = ' '.join(contents[:-2])
+        description = ' ' + ' '.join(contents[:-2]) + ' '
         for pattern, sub in (
-            (r'KARTU (DEBIT|KREDIT)', ''),
-            (r'(BYR VIA|TRSF) E-BANKING( (DB|CR))?', ''),
-            (r'KR OTOMATIS', ''),
-            (r'TRANSFER( (DB|CR))?', ''),
-            (r'SWITCHING( (DB|CR))?( TRANSFER)?', ''),
-            (r'TANGGAL :', ''),
-            (r'\d{2}/\d{2}', ''),
-            (r'\d{15,}', ''),
+            (r' KARTU (DEBIT|KREDIT) ', ''),
+            (r' (DB|CR) ', ''),
+            (r' (BYR VIA|TRSF) E-BANKING ', ''),
+            (r' KR OTOMATIS ', ''),
+            (r' TRANSFER ', ''),
+            (r' SWITCHING ', ''),
+            (r' TANGGAL :', ''),
+            (r' \d{2}/\d{2} ', ''),
+            (r' \d{15,} ', ''),
             (r' \d{2,4} ', ' '),
-            (r' -', ''),
+            (r' - ', ''),
             (r'\s+', ' '),
         ):
             description = re.sub(pattern, sub, description)

@@ -59,15 +59,17 @@ def get_crypto_prices():
 
 def get_ip_address():
     res = get('https://api.ipify.org/?format=json')
-    return res
+    return {
+        'IP': res.get('ip')
+    }
 
 
 def get_mc_server_status(hostname):
     res = get(f'https://api.mcsrvstat.us/1/{hostname}')
     data = {
-        'hostname': res['hostname'],
-        'online': not res.get('offline', False),
-        'players': res.get('players')
+        'HOSTNAME': res['hostname'],
+        'ONLINE': not res.get('offline', False),
+        'PLAYERS': res.get('players')
     }
     if data['players'] is None:
         data.pop('players')

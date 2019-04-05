@@ -151,7 +151,7 @@ def _get_bca_period_statements(browser, backdate_week):
             (r' TRANSFER ', ' '),
             (r' SWITCHING ', ' '),
             (r' TANGGAL :', ' '),
-            (r' [\d]{2}/[\d]{2} ', ' '),
+            (r' ([\d]{2}/[\d]{2} )+', ' '),
             (r' [\d]{3,5}/FTFVA/WS[\d]{4,6} ', ' '),
             (r' WSID[\d]{7,8} ', ' '),
             (r' [\d]{2,} ', ' '),

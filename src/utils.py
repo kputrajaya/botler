@@ -91,18 +91,19 @@ def get_bca_statements(username, password):
                 .replace('  ', ' ') \
                 .replace(date, '') \
                 .strip()
-            description = f'{date} - {description}'
             sign = '-' if cells[2].text == 'DB' else '+'
             amount = f'{sign} {contents[-1]}'
-            transactions.append([description, amount])
+            transactions.append([date, description, amount])
 
         # Parse balance
         balance_table = tables[2]
         balance_row = balance_table.select('tr')[-1]
         balance = balance_row.select('td')[-1].text
 
-        transactions.append(['CURRENT BALANCE', f'+ {balance}'])
-        return transactions
+        return {
+            'transactions': transactions,
+            'balance': balance
+        }
     finally:
         # Logout
         browser.open(f'{hostname}/authentication.do?value(actions)=logout')
@@ -111,7 +112,7 @@ def get_bca_statements(username, password):
 def get_crypto_prices():
     res = get('https://indodax.com/api/btc_idr/webdata')
     data = {
-        f'{k[:-3].upper()}/IDR': '{:,}'.format(int(v))
+        f'{k[:-3].upper()}': '{:,}'.format(int(v))
         for k, v in res['prices'].items()
         if k.endswith('idr')
     }

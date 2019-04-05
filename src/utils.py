@@ -93,8 +93,9 @@ def get_bca_statements(username, password):
                 .replace('  ', ' ') \
                 .replace(date, '') \
                 .strip()
-            sign = '-' if cells[2].text == 'DB' else '+'
-            amount = f'[{sign}] {contents[-1]}'
+            amount = contents[-1]
+            if cells[2].text == 'DB':
+                amount = f'({amount})'
             transactions.append([date, description[:45], amount])
 
         # Parse balance

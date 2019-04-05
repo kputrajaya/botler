@@ -142,6 +142,7 @@ def _get_bca_period_statements(browser, backdate_week):
             if x and isinstance(x, str) and x[0] not in ('<', '\n')]
         description = ' ' + ' '.join(contents[:-2]) + ' '
         for pattern, sub in (
+            (r' M-BCA ', ' '),
             (r' KARTU (DEBIT|KREDIT) ', ' '),
             (r' (DB|DR|CR) ', ' '),
             (r' (BYR VIA|TRSF) E-BANKING ', ' '),

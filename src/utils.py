@@ -36,14 +36,11 @@ def get_bca_statements(username, password):
         if 'accountstmt' not in browser.response.text:
             raise ValueError('Failed to login.')
 
-        result = {
-            'balance': None,
-            'transactions': {}
-        }
+        result = {}
         for i in range(4):
             period_result = _get_bca_period_statements(browser, i)
             result['balance'] = result['balance'] or period_result['balance']
-            result['transactions'] = {**period_result['transactions'], **result['transactions']}
+            result = {**period_result['transactions'], **result}
         return result
     finally:
         # Logout

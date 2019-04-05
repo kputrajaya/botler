@@ -69,10 +69,8 @@ def get_mc_server_status(hostname):
     data = {
         'HOSTNAME': res['hostname'],
         'ONLINE': not res.get('offline', False),
-        'PLAYERS': res.get('players')
+        'PLAYERS': res.get('players') or []
     }
-    if data['players'] is None:
-        data.pop('players')
     return data
 
 

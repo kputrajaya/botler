@@ -78,7 +78,7 @@ def get_bca_statements(username, password):
                 x.strip()
                 for x in cells[1].contents
                 if x and isinstance(x, str) and x[0] not in ('<', '\n')]
-            description = ' '.join(contents[:-2]) \
+            info = ' '.join(contents[:-2]) \
                 .replace('KARTU DEBIT', '') \
                 .replace('KARTU KREDIT', '') \
                 .replace('BYR VIA E-BANKING', '') \
@@ -96,7 +96,11 @@ def get_bca_statements(username, password):
             amount = contents[-1]
             if cells[2].text == 'DB':
                 amount = f'({amount})'
-            transactions.append([date, description[:45], amount])
+            transactions.append({
+                'date': date,
+                'info': info,
+                'amount': amount
+            })
 
         # Parse balance
         balance_table = tables[2]

@@ -39,10 +39,8 @@ def get_bca_statements(username, password):
         result = {}
         for i in range(4):
             period_result = _get_bca_period_statements(browser, i)
-            result['balance'] = result.get('balance', period_result['balance'])
-            for date, transactions in period_result['transactions'].items():
-                result[date] = result.get(date, [])
-                result[date] += transactions
+            result['BALANCE'] = result.get('BALANCE', period_result['balance'])
+            result = {**result, **period_result['transactions']}
         return result
     finally:
         # Logout

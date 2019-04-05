@@ -1,5 +1,6 @@
 import datetime
 import json
+import re
 from urllib import request
 
 from robobrowser import RoboBrowser
@@ -78,21 +79,19 @@ def get_bca_statements(username, password):
                 x.strip()
                 for x in cells[1].contents
                 if x and isinstance(x, str) and x[0] not in ('<', '\n')]
-            description = ' '.join(contents[:-2]) \
-                .replace('KARTU DEBIT', '') \
-                .replace('KARTU KREDIT', '') \
-                .replace('BYR VIA E-BANKING', '') \
-                .replace('TRSF E-BANKING DB', '') \
-                .replace('TRSF E-BANKING CR', '') \
-                .replace('KR OTOMATIS', '') \
-                .replace('SWITCHING CR TRANSFER', '') \
-                .replace('SWITCHING CR', '') \
-                .replace('TANGGAL :', '') \
-                .replace(' - - ', ' ') \
-                .replace(' - ', ' ') \
-                .replace('  ', ' ') \
-                .replace(date, '') \
-                .strip()
+            description = ' '.join(contents[:-2])
+            for pattern, sub in (
+                (r'KARTU (DEBIT|KREDIT)', ''),
+                (r'(BYR VIA|TRSF) E-BANKING( (DB|CR))?', ''),
+                (r'KR OTOMATIS', ''),
+                (r'SWITCHING( (DB|CR))?( TRANSFER)?', ''),
+                (r'TANGGAL :', ''),
+                (r'\d{2}/\d{2}', ''),
+                (r' - (- )?' ''),
+                (r'\s+', ' '),
+            ):
+                description = re.sub(pattern, sub, description)
+            description = description.strip()
             amount = contents[-1]
             if cells[2].text == 'DB':
                 amount = f'({amount})'

@@ -8,19 +8,25 @@ from src import utils
 
 
 def bot(event, context):
+    response = {'statusCode': 200}
+
     try:
-        # Parse input
+        # Get reply
         data = json.loads(event['body'])
-        chat_id = data['message']['chat']['id']
         message = str(data['message']['text'])
-
-        # Get and send reply
         reply = _get_reply(message)
-        _send_reply(chat_id, reply)
-    except Exception as e:
-        print(e)
 
-    return {'statusCode': 200}
+        # Print or send back
+        echo = data.get('echo') == True
+        if echo:
+            response['body'] = json.dumps(reply, sort_keys=True)
+        else:
+            chat_id = data['message']['chat']['id']
+            _send_reply(chat_id, reply)
+    except Exception as e:
+        print(f'ERROR: {e}')
+
+    return response
 
 
 def _get_reply(message):
@@ -49,18 +55,17 @@ def _get_reply(message):
             reply = ('Hello there, please see command list to see '
                      'what I can help you with.')
     except Exception as e:
-        reply = 'Sorry, something went wrong.'
         print(f'ERROR: {e}')
-
-    # Format as pretty JSON
-    if not isinstance(reply, str):
-        reply = yaml.dump(reply, default_flow_style=False)
-        reply = f'```\n{reply}\n```'
+        reply = 'Sorry, something went wrong.'
 
     return reply
 
 
 def _send_reply(chat_id, text):
+    if not isinstance(text, str):
+        text = yaml.dump(text, default_flow_style=False)
+        text = f'```\n{text}\n```'
+
     token = os.environ['TELEGRAM_TOKEN']
     utils.post(
         f'https://api.telegram.org/bot{token}/sendMessage',

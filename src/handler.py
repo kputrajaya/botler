@@ -17,8 +17,12 @@ def bot(event, context):
         reply = _get_reply(message)
 
         # Print or send back
-        echo = data.get('echo') == True
+        echo = data.get('echo', '0') != '0'
         if echo:
+            response['headers'] = {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            }
             response['body'] = json.dumps(reply, sort_keys=True)
         else:
             chat_id = data['message']['chat']['id']

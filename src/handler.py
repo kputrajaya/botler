@@ -17,7 +17,7 @@ def bot(event, context):
         reply = _get_reply(message)
 
         # Print or send back
-        echo = data.get('echo', '0') != '0'
+        echo = data.get('echo')
         if echo:
             response['headers'] = {
                 'Access-Control-Allow-Origin': '*',
@@ -44,9 +44,7 @@ def _get_reply(message):
     # Process commands
     try:
         if command == 'bca':
-            credentials = base64.b64decode(args[0]).decode('utf-8').split(':')
-            username = credentials[0]
-            password = credentials[1]
+            username, password = base64.b64decode(args[0]).decode('utf-8').split(':')
             reply = utils.get_bca_statements(username, password)
         elif command == 'crypto':
             reply = utils.get_crypto_prices()
@@ -56,8 +54,7 @@ def _get_reply(message):
             hostname = args[0] if args else 'mc.kputrajaya.com'
             reply = utils.get_mc_server_status(hostname)
         elif command == 'start':
-            reply = ('Hello there, please see command list to see '
-                     'what I can help you with.')
+            reply = ('Hello there, please see command list to see what I can help you with.')
     except Exception as e:
         print(f'ERROR: {e}')
         reply = 'Sorry, something went wrong.'

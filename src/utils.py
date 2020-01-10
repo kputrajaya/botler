@@ -153,6 +153,11 @@ def _get_bca_period_statements(browser, backdate_week):
                 date_parsed = datetime.datetime.strptime(f'{current_year - 1}/{date}', '%Y/%d/%m')
         date = date_parsed.strftime('%Y/%m/%d')
 
+        # Prepare amount
+        amount = contents[-1]
+        if cells[2].text == 'DB':
+            amount = f'({amount})'
+
         # Prepare description
         description = ' ' + ' '.join(contents[:-2]) + ' '
         for pattern, sub in (
@@ -165,19 +170,15 @@ def _get_bca_period_statements(browser, backdate_week):
             (r' SWITCHING ', ' '),
             (r' TANGGAL :', ' '),
             (r' ([\d]{2}/[\d]{2} )+', ' '),
-            (r' [\d]{3,5}/FTFVA/WS[\d]{4,6} ', ' '),
+            (r' [\d]{3,5}/FT[A-Z]{2,4}/WS[\d]{4,6} ', ' '),
             (r' WSID[\d]{7,8} ', ' '),
             (r' [\d]{2,} ', ' '),
             (r' (- )+', ' '),
+            (rf' {amount.replace(",", "")} ', ' '),
             (r'[\s]+', ' '),
         ):
             description = re.sub(pattern, sub, description)
-        description = description.strip()
-
-        # Prepare amount
-        amount = contents[-1]
-        if cells[2].text == 'DB':
-            amount = f'({amount})'
+        description = description.upper().strip()
 
         # Attach to transactions
         transactions[date] = transactions.get(date, [])

@@ -144,10 +144,14 @@ def _get_bca_period_statements(browser, backdate_week):
 
         # Prepare date
         date = cells[0].text.strip()
-        date = (
-            now.strftime('%m/%d')
-            if date == 'PEND'
-            else date[-2:] + '/' + date[:2])
+        if date == 'PEND':
+            date_parsed = now
+        else:
+            current_year = int(now.strftime('%Y'))
+            date_parsed = datetime.datetime.strptime(f'{current_year}/{date}', '%Y/%d/%m')
+            if date_parsed > now:
+                date_parsed = datetime.datetime.strptime(f'{current_year - 1}/{date}', '%Y/%d/%m')
+        date = date_parsed.strftime('%Y/%m/%d')
 
         # Prepare description
         description = ' ' + ' '.join(contents[:-2]) + ' '

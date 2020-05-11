@@ -29,6 +29,12 @@ def get_reply(message):
             return get_mc_server_status(hostname)
         if command == 'start':
             return MSG_START
+        if command == 'stock':
+            stock_map = {}
+            for arg in args:
+                arg_split = arg.split('=')
+                stock_map[arg_split[0]] = int(arg_split[1])
+            return get_stock_prices(stock_map)
         return MSG_UNKNOWN
     except Exception as e:
         print(f'ERROR: {e}')
@@ -92,11 +98,28 @@ def get_bca_statements(username, password):
 def get_crypto_prices():
     res = get('https://indodax.com/api/btc_idr/webdata')
     data = {
-        k[:-3].upper(): int(v) if int(v) < 1000 else '{:,}'.format(int(v))
+        k[:-3].upper(): _format_number(v)
         for k, v in res['prices'].items()
         if k.endswith('idr')
     }
     return data
+
+
+def get_stock_prices(stock_map):
+    total = 0
+    detail = {}
+    for code, lot_count in stock_map.items():
+        res = get(f'https://www.idx.co.id/umbraco/Surface/ListedCompany/GetTradingInfoDaily?code={code}')
+        price = res.get('ClosingPrice')
+        if price is None:
+            continue
+        value = lot_count * 100 * price
+        detail[code.upper()] = f'{_format_number(price)} x {_format_number(lot_count)} = {_format_number(value)}'
+        total += value
+    return {
+        'STOCKS': detail,
+        'TOTAL': _format_number(total)
+    }
 
 
 def get_ip_address():
@@ -147,16 +170,17 @@ def _get_bca_period_statements(browser, backdate_week):
     # Go to statements
     form = browser.get_form(method='post')
     form.action = 'accountstmt.do?value(actions)=acctstmtview'
-    for key, value in (
-        ('r1', '1'),
-        ('value(D1)', '0'),
-        ('value(startDt)', start_d),
-        ('value(startMt)', start_m),
-        ('value(startYr)', start_y),
-        ('value(endDt)', end_d),
-        ('value(endMt)', end_m),
-        ('value(endYr)', end_y),
-    ):
+    form_data = {
+        'r1': '1',
+        'value(D1)': '0',
+        'value(startDt)': start_d,
+        'value(startMt)': start_m,
+        'value(startYr)': start_y,
+        'value(endDt)': end_d,
+        'value(endMt)': end_m,
+        'value(endYr)': end_y,
+    }
+    for key, value in form_data.items():
         form.add_field(Input(f'<input name="{key}" value="{value}"/>'))
     browser.submit_form(form)
     if 'IDR' not in browser.response.text:
@@ -231,3 +255,7 @@ def _get_bca_period_statements(browser, backdate_week):
         'balance': balance,
         'transactions': transactions
     }
+
+
+def _format_number(value):
+    return int(value) if int(value) < 1000 else '{:,}'.format(int(value))

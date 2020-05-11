@@ -187,7 +187,7 @@ def _get_bca_period_statements(browser, backdate_week):
         raise ValueError('Failed to get statements data.')
 
     # Get data tables
-    tables = browser.select('table[cellpadding=3] table')
+    tables = browser.select('table[cellpadding="3"] table')
     if len(tables) != 3:
         raise ValueError('Statements data is in unexpected format.')
 

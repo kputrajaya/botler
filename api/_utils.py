@@ -9,8 +9,8 @@ from robobrowser import RoboBrowser
 from robobrowser.forms.fields import Input
 import yaml
 
-MSG_START = 'Hi there, please see command list to see what I can help you with.'
-MSG_UNKNOWN = 'I don\'t understand what you mean.'
+MSG_START = 'Hi there, open command list to see what I can help you with.'
+MSG_UNKNOWN = 'Hmm, I don\'t understand what you mean.'
 MSG_ERROR = 'Sorry, something went wrong.'
 
 

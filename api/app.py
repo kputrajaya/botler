@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 
 @app.route('/bot', methods=['POST'])
-def bot(path):
+def bot():
     data = request.json
     message = data.get('message', {})
     chat_id = message.get('chat', {}).get('id')

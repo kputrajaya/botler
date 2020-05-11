@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/app.py": {
+      "memory": 2048
+    }
+  },
+  "routes": [
+    {
+      "src": "/.*",
+      "dest": "/api/app"
+    }
+  ]
+}

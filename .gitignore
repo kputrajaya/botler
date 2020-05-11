@@ -18,3 +18,5 @@ var/
 *.egg
 .installed.cfg
 .Python
+
+.vercel

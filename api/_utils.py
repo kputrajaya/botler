@@ -1,20 +1,62 @@
+import base64
 import datetime
 import json
+import os
 import re
 from urllib import request
 
 from robobrowser import RoboBrowser
 from robobrowser.forms.fields import Input
+import yaml
+
+MSG_START = 'Hi there, please see command list to see what I can help you with.'
+MSG_UNKNOWN = 'I don\'t understand what you mean.'
+MSG_ERROR = 'Sorry, something went wrong.'
+
+
+def get_reply(message):
+    try:
+        command, args = parse_message(message)
+        if command == 'bca':
+            username, password = base64.b64decode(args[0]).decode('utf-8').split(':')
+            return get_bca_statements(username, password)
+        if command == 'crypto':
+            return get_crypto_prices()
+        if command == 'ip':
+            return get_ip_address()
+        if command == 'mc':
+            hostname = args[0] if args else 'mc.kputrajaya.com'
+            return get_mc_server_status(hostname)
+        if command == 'start':
+            return MSG_START
+        return MSG_UNKNOWN
+    except Exception as e:
+        print(f'ERROR: {e}')
+        return MSG_ERROR
+
+
+def send_reply(chat_id, text):
+    if not isinstance(text, str):
+        text = yaml.dump(text, default_flow_style=False)
+        text = f'```{text}```'
+
+    token = os.environ['TELEGRAM_TOKEN']
+    post(
+        f'https://api.telegram.org/bot{token}/sendMessage',
+        {'Content-Type': 'application/json'},
+        {
+            'chat_id': chat_id,
+            'text': text,
+            'parse_mode': 'Markdown'
+        })
 
 
 def parse_message(message):
     if message.startswith('/'):
-        message = message[1:]
-        args = [x for x in message.split(' ') if x]
+        args = [x for x in message[1:].split(' ') if x]
         if args:
             command = args.pop(0).lower()
             return command, args
-
     return None, []
 
 
@@ -91,11 +133,6 @@ def post(url, headers, data):
     request.urlopen(req)
 
 
-def _add_form_data(form, data):
-    for key, value in data.items():
-        form.add_field(Input(f'<input name="{key}" value="{value}"/>'))
-
-
 def _get_bca_period_statements(browser, backdate_week):
     now = datetime.datetime.now() + datetime.timedelta(hours=7)
     end_date = now - datetime.timedelta(days=backdate_week * 7)
@@ -110,16 +147,17 @@ def _get_bca_period_statements(browser, backdate_week):
     # Go to statements
     form = browser.get_form(method='post')
     form.action = 'accountstmt.do?value(actions)=acctstmtview'
-    _add_form_data(form, {
-        'r1': '1',
-        'value(D1)': '0',
-        'value(startDt)': start_d,
-        'value(startMt)': start_m,
-        'value(startYr)': start_y,
-        'value(endDt)': end_d,
-        'value(endMt)': end_m,
-        'value(endYr)': end_y,
-    })
+    for key, value in (
+        ('r1', '1'),
+        ('value(D1)', '0'),
+        ('value(startDt)', start_d),
+        ('value(startMt)', start_m),
+        ('value(startYr)', start_y),
+        ('value(endDt)', end_d),
+        ('value(endMt)', end_m),
+        ('value(endYr)', end_y),
+    ):
+        form.add_field(Input(f'<input name="{key}" value="{value}"/>'))
     browser.submit_form(form)
     if 'IDR' not in browser.response.text:
         raise ValueError('Failed to get statements data.')

@@ -1,7 +1,6 @@
 import base64
 import datetime
 import json
-import os
 import re
 from urllib import request
 
@@ -41,12 +40,11 @@ def get_reply(message):
         return MSG_ERROR
 
 
-def send_reply(chat_id, text):
+def send_reply(token, chat_id, text):
     if not isinstance(text, str):
         text = yaml.dump(text, default_flow_style=False)
         text = f'```\n{text}\n```'
 
-    token = os.environ['TELEGRAM_TOKEN']
     post(
         f'https://api.telegram.org/bot{token}/sendMessage',
         {'Content-Type': 'application/json'},

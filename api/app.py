@@ -16,5 +16,5 @@ def bot():
 
     if chat_id:
         _utils.send_reply(chat_id, reply)
-        return None
-    return reply, {'Access-Control-Allow-Origin': '*'}
+        return '', 204
+    return reply, 200, {'Access-Control-Allow-Origin': '*'}

@@ -44,7 +44,7 @@ def get_reply(message):
 def send_reply(chat_id, text):
     if not isinstance(text, str):
         text = yaml.dump(text, default_flow_style=False)
-        text = f'```{text}```'
+        text = f'```\n{text}\n```'
 
     token = os.environ['TELEGRAM_TOKEN']
     post(

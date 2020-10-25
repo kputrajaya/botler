@@ -83,7 +83,9 @@ def get_bca_statements(username, password):
             raise ValueError('Failed to login.')
 
         # Get balance then statements
-        browser.open(f'{hostname}/balanceinquiry.do')
+        form = browser.get_form(method='post')
+        form.action = 'balanceinquiry.do'
+        browser.submit_form(form)
         balances = browser.select('table[cellpadding="5"] td[align="right"] b')
         if not balances:
             raise ValueError('Failed to get balance.')

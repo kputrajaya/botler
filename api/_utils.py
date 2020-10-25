@@ -82,11 +82,14 @@ def get_bca_statements(username, password):
         if 'accountstmt' not in browser.response.text:
             raise ValueError('Failed to login.')
 
-        result = {}
+        # Get balance then statements
+        browser.open(f'{hostname}/balanceinquiry.do')
+        balances = browser.select('table[cellpadding="5"] td[align="right"] b')
+        if not balances:
+            raise ValueError('Failed to get balance.')
+        result = {'BALANCE': balances[0].contents}
         for i in range(4):
-            period_result = _get_bca_period_statements(browser, i)
-            result['BALANCE'] = result.get('BALANCE', period_result['balance'])
-            result = {**result, **period_result['transactions']}
+            result = {**result, **_get_bca_statements(browser, i)}
         return result
     finally:
         # Logout
@@ -154,7 +157,7 @@ def post(url, headers, data):
     request.urlopen(req)
 
 
-def _get_bca_period_statements(browser, backdate_week):
+def _get_bca_statements(browser, backdate_week):
     now = datetime.datetime.now() + datetime.timedelta(hours=7)
     end_date = now - datetime.timedelta(days=backdate_week * 7)
     start_date = end_date - datetime.timedelta(days=6)
@@ -244,15 +247,7 @@ def _get_bca_period_statements(browser, backdate_week):
         transactions[date] = transactions.get(date, [])
         transactions[date].append([description, amount])
 
-    # Parse balance
-    balance_table = tables[2]
-    balance_row = balance_table.select('tr')[-1]
-    balance = balance_row.select('td')[-1].text
-
-    return {
-        'balance': balance,
-        'transactions': transactions
-    }
+    return transactions
 
 
 def _format_number(value):

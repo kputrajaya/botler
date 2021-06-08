@@ -2,7 +2,7 @@ import base64
 import datetime
 import json
 import re
-from urllib import request
+from urllib.request import Request, urlopen
 
 from robobrowser import RoboBrowser
 from robobrowser.forms.fields import Input
@@ -65,11 +65,7 @@ def parse_message(message):
 
 
 def get_bca_statements(username, password):
-    browser = RoboBrowser(
-        parser='html.parser',
-        user_agent='Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like '
-                   'Mac OS X) AppleWebKit/604.1.38 (KHTML, like '
-                   'Gecko) Version/11.0 Mobile/15A372 Safari/604.1')
+    browser = RoboBrowser(parser='html.parser', user_agent='Mozilla/5.0')
     hostname = 'https://m.klikbca.com'
 
     try:
@@ -145,18 +141,16 @@ def get_mc_server_status(hostname):
 
 
 def get(url):
-    res = request.urlopen(url)
+    req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+    res = urlopen(req)
     encoding = res.info().get_param('charset') or 'utf-8'
     data = json.loads(res.read().decode(encoding))
     return data
 
 
 def post(url, headers, data):
-    req = request.Request(
-        url,
-        headers=headers,
-        data=json.dumps(data).encode('utf-8') if data else None)
-    request.urlopen(req)
+    req = Request(url, headers=headers, data=json.dumps(data).encode('utf-8') if data else None)
+    urlopen(req)
 
 
 def _get_bca_statements(browser, backdate_week):

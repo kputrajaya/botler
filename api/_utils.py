@@ -5,7 +5,6 @@ import re
 from urllib.request import Request, urlopen
 
 import werkzeug
-import yaml
 
 werkzeug.cached_property = werkzeug.utils.cached_property
 
@@ -48,7 +47,7 @@ def send_reply(token, chat_id, text):
     try:
         text_is_string = isinstance(text, str)
         if not text_is_string:
-            text = yaml.dump(text, default_flow_style=False)
+            text = json.dumps(text, indent=1)
             text = f'```\n{text}\n```'
 
         post(

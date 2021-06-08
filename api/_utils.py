@@ -145,16 +145,14 @@ def get_mc_server_status(hostname):
 
 
 def get(url):
-    req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-    res = urlopen(req)
-    encoding = res.info().get_param('charset') or 'utf-8'
-    data = json.loads(res.read().decode(encoding))
-    return data
+    with urlopen(Request(url, headers={'User-Agent': 'Mozilla/5.0'})) as res:
+        encoding = res.info().get_content_charset('utf-8')
+        return json.loads(res.read().decode(encoding))
 
 
 def post(url, headers, data):
-    req = Request(url, headers=headers, data=json.dumps(data).encode('utf-8') if data else None)
-    urlopen(req)
+    with urlopen(Request(url, headers=headers, data=json.dumps(data).encode('utf-8') if data else None)):
+        pass
 
 
 def _get_bca_statements(browser, backdate_week):

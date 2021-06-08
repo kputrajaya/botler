@@ -44,8 +44,9 @@ def get_reply(message):
 def send_reply(token, chat_id, text):
     if not isinstance(text, str):
         text = yaml.dump(text, default_flow_style=False)
-        text = f'```\n{text}\n```'
+        text = f'```{text}```'
 
+    print(text)
     post(
         f'https://api.telegram.org/bot{token}/sendMessage',
         {'Content-Type': 'application/json'},

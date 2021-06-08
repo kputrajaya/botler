@@ -25,7 +25,7 @@ def get_reply(message):
         if command == 'ip':
             return get_ip_address()
         if command == 'mc':
-            hostname = args[0] if args else 'mc.kputrajaya.com'
+            hostname = args[0] if args else 'h.kvn.pt'
             return get_mc_server_status(hostname)
         if command == 'start':
             return MSG_START
@@ -46,6 +46,7 @@ def send_reply(token, chat_id, text):
         if not isinstance(text, str):
             text = yaml.dump(text, default_flow_style=False)
             text = f'```\n{text}\n```'
+
         post(
             f'https://api.telegram.org/bot{token}/sendMessage',
             {'Content-Type': 'application/json'},
@@ -55,7 +56,7 @@ def send_reply(token, chat_id, text):
                 'parse_mode': 'MarkdownV2'
             })
     except Exception as e:
-        print(f'Error @ send_reply: {e}')
+        print(f'Error @ send_reply: {e}, {chat_id}, {text}')
 
 
 def parse_message(message):

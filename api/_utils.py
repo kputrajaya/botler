@@ -4,9 +4,10 @@ import json
 import re
 from urllib.request import Request, urlopen
 
-from robobrowser import RoboBrowser
-from robobrowser.forms.fields import Input
+import werkzeug
 import yaml
+
+werkzeug.cached_property = werkzeug.utils.cached_property
 
 MSG_START = 'Hi there, open command list to see what I can help you with.'
 MSG_UNKNOWN = 'Hmm, I don\'t understand what you mean.'
@@ -65,6 +66,8 @@ def parse_message(message):
 
 
 def get_bca_statements(username, password):
+    from robobrowser import RoboBrowser
+
     browser = RoboBrowser(parser='html.parser', user_agent='Mozilla/5.0')
     hostname = 'https://m.klikbca.com'
 
@@ -154,6 +157,8 @@ def post(url, headers, data):
 
 
 def _get_bca_statements(browser, backdate_week):
+    from robobrowser.forms.fields import Input
+
     now = datetime.datetime.now() + datetime.timedelta(hours=7)
     end_date = now - datetime.timedelta(days=backdate_week * 7)
     start_date = end_date - datetime.timedelta(days=6)

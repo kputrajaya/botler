@@ -1,12 +1,11 @@
 import base64
 import datetime
-import io
 import json
 import re
 from urllib.request import Request, urlopen
 
-from ruamel.yaml import YAML
 import werkzeug
+import yaml
 
 werkzeug.cached_property = werkzeug.utils.cached_property
 
@@ -47,14 +46,10 @@ def get_reply(message):
 
 def send_reply(token, chat_id, text):
     try:
-        if not isinstance(text, str):
-            yaml = YAML()
-            yaml.default_flow_style = False
-
-            stream = io.StringIO()
-            yaml.dump(text, stream)
-            text = f'```\n{stream.getvalue()}\n```'
-            stream.close()
+        text_is_string = isinstance(text, str)
+        if not text_is_string:
+            text = yaml.dump(text, default_flow_style=False)
+            text = f'```\n{text}\n```'
 
         post(
             f'https://api.telegram.org/bot{token}/sendMessage',
@@ -65,7 +60,7 @@ def send_reply(token, chat_id, text):
                 'parse_mode': 'MarkdownV2'
             })
     except Exception as e:
-        print(f'Error @ send_reply: {e}, {len(token)}, {len(str(chat_id))}, {len(text)}')
+        print(f'Error @ send_reply: {e}, {text_is_string}, {len(text)}')
 
 
 def parse_message(message):

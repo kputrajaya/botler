@@ -47,7 +47,7 @@ def send_reply(token, chat_id, text):
     try:
         text_is_string = isinstance(text, str)
         if not text_is_string:
-            text = json.dumps(text, indent=1)
+            text = json.dumps(text, indent=2)
             text = f'```\n{text}\n```'
 
         post(

@@ -34,8 +34,8 @@ def get_reply(message):
         if command == 'stock':
             stock_map = {}
             for arg in args:
-                arg_split = arg.split('=')
-                stock_map[arg_split[0]] = int(arg_split[1])
+                code, count = arg.split('=')
+                stock_map[code] = int(count)
             return get_stock_prices(stock_map)
         return MSG_UNKNOWN
     except Exception as e:

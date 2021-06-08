@@ -45,9 +45,9 @@ def get_reply(message):
 
 def send_reply(token, chat_id, text):
     try:
-        text_is_string = isinstance(text, str)
-        if not text_is_string:
-            text = json.dumps(text, indent=2)
+        is_str = isinstance(text, str)
+        if not is_str:
+            text = json.dumps(text, sort_keys=True, indent=2)
             text = f'```\n{text}\n```'
 
         post(
@@ -59,7 +59,7 @@ def send_reply(token, chat_id, text):
                 'parse_mode': 'MarkdownV2'
             })
     except Exception as e:
-        print(f'Error @ send_reply: {e}, {text_is_string}, {len(text)}')
+        print(f'Error @ send_reply: {e}, {is_str}, {len(text)}')
 
 
 def parse_message(message):

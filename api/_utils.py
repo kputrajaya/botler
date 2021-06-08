@@ -59,7 +59,7 @@ def send_reply(token, chat_id, text):
                 'parse_mode': 'MarkdownV2'
             })
     except Exception as e:
-        print(f'Error @ send_reply: {e}, {chat_id}, {text}')
+        print(f'Error @ send_reply: {e}, {len(token)}, {len(str(chat_id))}, {len(text)}')
 
 
 def parse_message(message):

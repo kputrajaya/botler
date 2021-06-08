@@ -37,7 +37,7 @@ def get_reply(message):
             return get_stock_prices(stock_map)
         return MSG_UNKNOWN
     except Exception as e:
-        print(f'ERROR: {e}')
+        print(f'Error @ get_reply: {e}')
         return MSG_ERROR
 
 
@@ -45,7 +45,7 @@ def send_reply(token, chat_id, text):
     try:
         if not isinstance(text, str):
             text = yaml.dump(text, default_flow_style=False)
-            text = f'```{text}```'
+            text = f'```\n{text}\n```'
         post(
             f'https://api.telegram.org/bot{token}/sendMessage',
             {'Content-Type': 'application/json'},
@@ -54,8 +54,8 @@ def send_reply(token, chat_id, text):
                 'text': text,
                 'parse_mode': 'MarkdownV2'
             })
-    except Exception:
-        pass
+    except Exception as e:
+        print(f'Error @ send_reply: {e}')
 
 
 def parse_message(message):

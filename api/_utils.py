@@ -12,6 +12,9 @@ werkzeug.cached_property = werkzeug.utils.cached_property
 MSG_START = 'Hi there, open command list to see what I can help you with.'
 MSG_UNKNOWN = 'Hmm, I don\'t understand what you mean.'
 MSG_ERROR = 'Sorry, something went wrong.'
+USER_AGENT = (
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) '
+    'Version/11.0 Mobile/15A372 Safari/604.1')
 
 
 def get_reply(message):
@@ -71,7 +74,7 @@ def parse_message(message):
 def get_bca_statements(username, password):
     from robobrowser import RoboBrowser
 
-    browser = RoboBrowser(parser='html.parser', user_agent='Mozilla/5.0')
+    browser = RoboBrowser(parser='html.parser', user_agent=USER_AGENT)
     hostname = 'https://m.klikbca.com'
 
     try:
@@ -147,13 +150,17 @@ def get_mc_server_status(hostname):
 
 
 def get(url):
-    with urlopen(Request(url, headers={'User-Agent': 'Mozilla/5.0'})) as res:
+    with urlopen(
+        Request(url, headers={'User-Agent': USER_AGENT})
+    ) as res:
         encoding = res.info().get_content_charset('utf-8')
         return json.loads(res.read().decode(encoding))
 
 
 def post(url, headers, data):
-    with urlopen(Request(url, headers=headers, data=json.dumps(data).encode('utf-8') if data else None)):
+    with urlopen(
+        Request(url, headers={**headers, 'User-Agent': USER_AGENT}, data=json.dumps(data or None).encode('utf-8'))
+    ):
         pass
 
 

@@ -42,18 +42,20 @@ def get_reply(message):
 
 
 def send_reply(token, chat_id, text):
-    if not isinstance(text, str):
-        text = yaml.dump(text, default_flow_style=False)
-        text = f'```{text}```'
-
-    post(
-        f'https://api.telegram.org/bot{token}/sendMessage',
-        {'Content-Type': 'application/json'},
-        {
-            'chat_id': chat_id,
-            'text': text,
-            'parse_mode': 'MarkdownV2'
-        })
+    try:
+        if not isinstance(text, str):
+            text = yaml.dump(text, default_flow_style=False)
+            text = f'```{text}```'
+        post(
+            f'https://api.telegram.org/bot{token}/sendMessage',
+            {'Content-Type': 'application/json'},
+            {
+                'chat_id': chat_id,
+                'text': text,
+                'parse_mode': 'MarkdownV2'
+            })
+    except Exception:
+        pass
 
 
 def parse_message(message):

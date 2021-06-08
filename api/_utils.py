@@ -4,8 +4,8 @@ import json
 import re
 from urllib.request import Request, urlopen
 
+from ruamel.yaml import YAML
 import werkzeug
-import yaml
 
 werkzeug.cached_property = werkzeug.utils.cached_property
 
@@ -47,8 +47,9 @@ def get_reply(message):
 def send_reply(token, chat_id, text):
     try:
         if not isinstance(text, str):
-            text = yaml.dump(text, default_flow_style=False)
-            text = f'```\n{text}\n```'
+            yaml = YAML()
+            yaml.default_flow_style = False
+            text = f'```\n{yaml.dump(text)}\n```'
 
         post(
             f'https://api.telegram.org/bot{token}/sendMessage',

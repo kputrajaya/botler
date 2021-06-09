@@ -55,7 +55,7 @@ def send_reply(token, chat_id, text):
             {
                 'chat_id': chat_id,
                 'text': text,
-                'parse_mode': 'MarkdownV2'
+                'parse_mode': 'Markdown'
             })
     except Exception as e:
         print(f'Error @ send_reply: {e}')

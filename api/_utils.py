@@ -2,6 +2,7 @@ import base64
 import datetime
 import json
 import re
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 import werkzeug
@@ -45,11 +46,9 @@ def get_reply(message):
 
 def send_reply(token, chat_id, text):
     try:
-        is_str = isinstance(text, str)
-        if not is_str:
+        if not isinstance(text, str):
             text = json.dumps(text, sort_keys=True, indent=2)
             text = f'```\n{text}\n```'
-
         post(
             f'https://api.telegram.org/bot{token}/sendMessage',
             {'Content-Type': 'application/json'},
@@ -59,7 +58,7 @@ def send_reply(token, chat_id, text):
                 'parse_mode': 'MarkdownV2'
             })
     except Exception as e:
-        print(f'Error @ send_reply: {e}, {is_str}, {len(text)}')
+        print(f'Error @ send_reply: {e}')
 
 
 def parse_message(message):
@@ -150,18 +149,24 @@ def get_mc_server_status(hostname):
 
 
 def get(url):
-    with urlopen(
-        Request(url, headers={'User-Agent': USER_AGENT})
-    ) as res:
-        encoding = res.info().get_content_charset('utf-8')
-        return json.loads(res.read().decode(encoding))
+    try:
+        with urlopen(
+            Request(url, headers={'User-Agent': USER_AGENT})
+        ) as res:
+            encoding = res.info().get_content_charset('utf-8')
+            return json.loads(res.read().decode(encoding))
+    except HTTPError as e:
+        raise ValueError(f'{e.code}: {e.read().decode()}')
 
 
 def post(url, headers, data):
-    with urlopen(
-        Request(url, headers={**headers, 'User-Agent': USER_AGENT}, data=json.dumps(data or None).encode('utf-8'))
-    ):
-        pass
+    try:
+        with urlopen(
+            Request(url, headers={**headers, 'User-Agent': USER_AGENT}, data=json.dumps(data).encode('utf-8'))
+        ):
+            pass
+    except HTTPError as e:
+        raise ValueError(f'{e.code}: {e.read().decode()}')
 
 
 def _get_bca_statements(browser, backdate_week):

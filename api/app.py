@@ -23,7 +23,7 @@ class Data(BaseModel):
 
 
 @app.post('/bot')
-async def bot(token: str, data: Data, response: Response):
+async def bot(data: Data, response: Response, token: Optional[str] = None):
     reply = _utils.get_reply(data.message.text)
     if token and data.message.chat:
         _utils.send_reply(token, data.message.chat.id, reply)

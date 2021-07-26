@@ -1,4 +1,19 @@
-POST http://localhost:8000/bot?token=614064878:AAE-nvQrsxOVMRFLYJgKVXGiAgpFwJKTCEc
+POST https://api.telegram.org/bot{token}/setWebhook?url=https://botler.kvn.pt/bot?token={token}
+
+###
+
+POST http://localhost:8000/bot?token={token}
+Content-Type: application/json
+
+{
+  "message": {
+    "text": "/mc"
+  }
+}
+
+###
+
+POST https://botler.kvn.pt/bot?token={token}
 Content-Type: application/json
 
 {

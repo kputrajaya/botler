@@ -7,6 +7,11 @@ from api import _utils
 app = Sanic(__name__)
 
 
+@app.get('/')
+async def hello(request):
+    return json('Hello, Botler!')
+
+
 @app.post('/bot')
 async def bot(request):
     token = request.args.get('token')

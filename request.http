@@ -1,0 +1,8 @@
+POST http://localhost:8000/bot?token=614064878:AAE-nvQrsxOVMRFLYJgKVXGiAgpFwJKTCEc
+Content-Type: application/json
+
+{
+  "message": {
+    "text": "/mc"
+  }
+}

@@ -1,4 +1,7 @@
-from fastapi import FastAPI
+from typing import Optional
+
+from fastapi import FastAPI, Response
+from pydantic import BaseModel
 
 from api import _utils
 
@@ -6,15 +9,24 @@ from api import _utils
 app = FastAPI()
 
 
-@app.post('/bot')
-async def bot(request, token):
-    data = await request.json()
-    message = data.get('message', {})
-    chat_id = message.get('chat', {}).get('id')
-    text = str(message.get('text') or '')
+class Chat(BaseModel):
+    id: int
 
-    reply = _utils.get_reply(text)
-    if token and chat_id:
-        _utils.send_reply(token, chat_id, reply)
-        return '', 204
-    return reply, 200, {'Access-Control-Allow-Origin': '*'}
+
+class Message(BaseModel):
+    chat: Optional[Chat]
+    text: str
+
+
+class Data(BaseModel):
+    message: Message
+
+
+@app.post('/bot')
+async def bot(token: str, data: Data, response: Response):
+    reply = _utils.get_reply(data.message.text)
+    if token and data.message.chat:
+        _utils.send_reply(token, data.message.chat.id, reply)
+        return None
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return reply

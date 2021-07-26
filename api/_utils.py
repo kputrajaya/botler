@@ -7,6 +7,7 @@ from urllib.request import Request, urlopen
 
 import werkzeug
 
+
 werkzeug.cached_property = werkzeug.utils.cached_property
 
 MSG_START = 'Hi there, open command list to see what I can help you with.'

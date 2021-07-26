@@ -1,15 +1,14 @@
-from flask import Flask, request
+from fastapi import FastAPI
 
 from api import _utils
 
 
-app = Flask(__name__)
+app = FastAPI()
 
 
-@app.route('/bot', methods=['POST'])
-def bot():
-    token = request.args.get('token')
-    data = request.json
+@app.post('/bot')
+async def bot(request, token):
+    data = await request.json()
     message = data.get('message', {})
     chat_id = message.get('chat', {}).get('id')
     text = str(message.get('text') or '')

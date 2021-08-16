@@ -19,4 +19,4 @@ async def bot(request):
         _utils.send_reply(token, chat_id, reply)
         return empty()
 
-    return json(reply)
+    return json(reply, sort_keys=True)

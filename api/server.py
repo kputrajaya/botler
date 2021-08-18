@@ -14,7 +14,7 @@ async def bot(request):
     text = message.get('text') or ''
     chat_id = message.get('chat', {}).get('id')
 
-    reply = _utils.get_reply(text)
+    reply = await _utils.get_reply(text)
     if token and chat_id:
         _utils.send_reply(token, chat_id, reply)
         return empty()

@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import datetime
 import json
@@ -5,6 +6,7 @@ import re
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
+from aioify import aioify
 import werkzeug
 
 
@@ -13,12 +15,10 @@ werkzeug.cached_property = werkzeug.utils.cached_property
 MSG_START = 'Hi there, open command list to see what I can help you with.'
 MSG_UNKNOWN = 'Hmm, I don\'t understand what you mean.'
 MSG_ERROR = 'Sorry, something went wrong.'
-USER_AGENT = (
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) '
-    'Version/11.0 Mobile/15A372 Safari/604.1')
+USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0'
 
 
-def get_reply(message):
+async def get_reply(message):
     try:
         command, args = parse_message(message)
         if command == 'bca':
@@ -38,7 +38,7 @@ def get_reply(message):
             for arg in args:
                 code, count = arg.split('=')
                 stock_map[code] = int(count)
-            return get_stock_prices(stock_map)
+            return await get_stock_prices(stock_map)
         return MSG_UNKNOWN
     except Exception as e:
         print(f'Error @ get_reply: {e}')
@@ -52,12 +52,12 @@ def send_reply(token, chat_id, text):
             text = f'```\n{text}\n```'
         post(
             f'https://api.telegram.org/bot{token}/sendMessage',
-            {'Content-Type': 'application/json'},
             {
                 'chat_id': chat_id,
                 'text': text,
                 'parse_mode': 'Markdown'
-            })
+            },
+            {'Content-Type': 'application/json'})
     except Exception as e:
         print(f'Error @ send_reply: {e}')
 
@@ -113,12 +113,27 @@ def get_crypto_prices():
     return data
 
 
-def get_stock_prices(stock_map):
+async def get_stock_prices(stock_map):
+    price_map = {}
+
+    @aioify
+    def populate_price(code):
+        res = get(f'http://www.duniainvestasi.com/bei/summaries/{code}', use_json=False)
+        price_str = re.sub(
+            r'^.+?<div class="span-3 summary_value last"><div [^>]+>([\d\,]+).+$',
+            r'\1',
+            res,
+            flags=re.M | re.S)
+        price = int(price_str.replace(',', ''))
+        price_map[code] = price
+
+    tasks = [populate_price(code) for code in stock_map.keys()]
+    await asyncio.gather(*tasks)
+
     total = 0
     detail = {}
     for code, lot_count in stock_map.items():
-        res = get(f'https://www.idx.co.id/umbraco/Surface/ListedCompany/GetTradingInfoDaily?code={code}')
-        price = res.get('ClosingPrice')
+        price = price_map.get(code)
         if price is None:
             continue
         value = lot_count * 100 * price
@@ -149,23 +164,21 @@ def get_mc_server_status(hostname):
     return data
 
 
-def get(url):
+def get(url, use_json=True):
+    return _request(Request(url, headers={'User-Agent': USER_AGENT}), use_json)
+
+
+def post(url, payload, headers={}, use_json=True):
+    data = (json.dumps(payload) if use_json else payload).encode('utf-8')
+    return _request(Request(url, headers={**headers, 'User-Agent': USER_AGENT}, data=data), use_json)
+
+
+def _request(request, use_json):
     try:
-        with urlopen(
-            Request(url, headers={'User-Agent': USER_AGENT})
-        ) as res:
+        with urlopen(request) as res:
             encoding = res.info().get_content_charset('utf-8')
-            return json.loads(res.read().decode(encoding))
-    except HTTPError as e:
-        raise ValueError(f'{e.code}: {e.read().decode()}')
-
-
-def post(url, headers, data):
-    try:
-        with urlopen(
-            Request(url, headers={**headers, 'User-Agent': USER_AGENT}, data=json.dumps(data).encode('utf-8'))
-        ):
-            pass
+            body = res.read().decode(encoding)
+            return json.loads(body) if use_json else body
     except HTTPError as e:
         raise ValueError(f'{e.code}: {e.read().decode()}')
 

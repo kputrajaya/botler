@@ -29,5 +29,5 @@ sniffio==1.2.0
 soupsieve==2.0
 stdlib-list==0.8.0
 urllib3==1.26.6
-websockets==9.1
+websockets==10.0
 Werkzeug==0.16.1

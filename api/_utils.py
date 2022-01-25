@@ -6,7 +6,7 @@ import re
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-from aioify import aioify
+# from aioify import aioify
 import werkzeug
 
 
@@ -116,7 +116,7 @@ def get_crypto_prices():
 async def get_stock_prices(stock_map):
     price_map = {}
 
-    @aioify
+    # @aioify
     def populate_price(code):
         res = get(f'http://www.duniainvestasi.com/bei/summaries/{code}', use_json=False)
         price_str = re.sub(
@@ -128,7 +128,7 @@ async def get_stock_prices(stock_map):
         price_map[code] = price
 
     tasks = [populate_price(code) for code in stock_map.keys()]
-    await asyncio.gather(*tasks)
+    # await asyncio.gather(*tasks)
 
     total = 0
     detail = {}

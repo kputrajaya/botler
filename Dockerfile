@@ -6,6 +6,6 @@ RUN pip install -r requirements.txt
 RUN mkdir /src
 COPY /src /src
 
-EXPOSE 3000
+EXPOSE 8080
 
 ENTRYPOINT ["python3", "/src/server.py"]

@@ -4,7 +4,7 @@ from sanic.response import empty, json
 import utils
 
 
-app = Sanic('server')
+app = Sanic('botler')
 
 
 @app.post('/bot')
@@ -23,4 +23,4 @@ async def bot(request):
 
 
 if __name__ == '__main__':
-    app.run(port=3000)
+    app.run(port=8080)

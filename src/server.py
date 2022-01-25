@@ -1,7 +1,7 @@
 from sanic import Sanic
 from sanic.response import empty, json
 
-from api import _utils
+import utils
 
 
 app = Sanic('server')
@@ -14,13 +14,13 @@ async def bot(request):
     text = message.get('text') or ''
     chat_id = message.get('chat', {}).get('id')
 
-    reply = await _utils.get_reply(text)
+    reply = await utils.get_reply(text)
     if token and chat_id:
-        _utils.send_reply(token, chat_id, reply)
+        utils.send_reply(token, chat_id, reply)
         return empty()
 
     return json(reply, sort_keys=True)
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=3000)

@@ -4,7 +4,7 @@ from sanic.response import empty, json
 import utils
 
 
-app = Sanic('botler')
+app = Sanic('Botler')
 
 
 @app.post('/bot')

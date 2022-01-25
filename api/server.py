@@ -20,3 +20,7 @@ async def bot(request):
         return empty()
 
     return json(reply, sort_keys=True)
+
+
+if __name__ == '__main__':
+    app.run()

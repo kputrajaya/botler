@@ -118,7 +118,7 @@ async def get_stock_prices(stock_map):
 
     @aioify
     def populate_price(code):
-        res = get(f'http://www.duniainvestasi.com/bei/summaries/{code}', use_json=False)
+        res = get(f'https://www.duniainvestasi.com/bei/summaries/{code}', use_json=False)
         price_str = re.sub(
             r'^.+?<div class="span-3 summary_value last"><div [^>]+>([\d\,]+).+$',
             r'\1',

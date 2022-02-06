@@ -6,3 +6,4 @@ Telegram bot that connects to various APIs.
 
 - [Sanic](https://sanicframework.org/en/)
 - [RoboBrowser](https://github.com/jmcarp/robobrowser)
+- [Google Cloud Run](https://cloud.google.com/run)

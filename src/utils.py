@@ -1,6 +1,6 @@
 import asyncio
 import base64
-import datetime
+from datetime import datetime, timedelta
 import json
 import re
 from urllib.error import HTTPError
@@ -186,9 +186,9 @@ def _request(request, use_json):
 def _get_bca_statements(browser, backdate_week):
     from robobrowser.forms.fields import Input
 
-    now = datetime.datetime.now() + datetime.timedelta(hours=7)
-    end_date = now - datetime.timedelta(days=backdate_week * 7)
-    start_date = end_date - datetime.timedelta(days=6)
+    now = datetime.now() + timedelta(hours=7)
+    end_date = now - timedelta(days=backdate_week * 7)
+    start_date = end_date - timedelta(days=6)
     start_d = start_date.strftime('%d')
     start_m = start_date.strftime('%m')
     start_y = start_date.strftime('%Y')
@@ -247,9 +247,9 @@ def _parse_bca_transaction_data(cells, now):
         date_parsed = now
     else:
         current_year = int(now.strftime('%Y'))
-        date_parsed = datetime.datetime.strptime(f'{current_year}/{date}', '%Y/%d/%m')
+        date_parsed = datetime.strptime(f'{current_year}/{date}', '%Y/%d/%m')
         if date_parsed > now:
-            date_parsed = datetime.datetime.strptime(f'{current_year - 1}/{date}', '%Y/%d/%m')
+            date_parsed = date_parsed.replace(year=current_year - 1)
     date = date_parsed.strftime('%Y/%m/%d')
 
     # Prepare amount

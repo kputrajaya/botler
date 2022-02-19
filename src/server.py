@@ -7,8 +7,16 @@ import utils
 app = Sanic('Botler')
 
 
+@app.get('/bot')
+async def get(request):
+    text = request.args.get('text') or ''
+
+    reply = await utils.get_reply(text)
+    return json(reply, sort_keys=True)
+
+
 @app.post('/bot')
-async def bot(request):
+async def post(request):
     token = request.args.get('token')
     message = request.json.get('message', {})
     text = message.get('text') or ''
@@ -18,7 +26,6 @@ async def bot(request):
     if token and chat_id:
         utils.send_reply(token, chat_id, reply)
         return empty()
-
     return json(reply, sort_keys=True)
 
 

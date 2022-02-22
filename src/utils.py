@@ -3,6 +3,7 @@ import base64
 from datetime import datetime, timedelta
 import json
 import re
+import socket
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -28,8 +29,12 @@ async def get_reply(message):
             return get_crypto_prices()
         if command == 'ip':
             return get_ip_address()
+        if command == 'port':
+            hostname = args[0]
+            port = int(args[1])
+            return get_port_status(hostname, port)
         if command == 'mc':
-            hostname = args[0] if args else 'h.kvn.pt'
+            hostname = args[0]
             return get_mc_server_status(hostname)
         if command == 'start':
             return MSG_START
@@ -149,6 +154,15 @@ def get_ip_address():
     res = get('https://api.ipify.org/?format=json')
     return {
         'IP': res.get('ip')
+    }
+
+
+def get_port_status(hostname, port):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = sock.connect_ex((hostname, port))
+    sock.close()
+    return {
+        'OPEN': result == 0
     }
 
 

@@ -159,6 +159,7 @@ def get_ip_address():
 
 def get_port_status(hostname, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(3)
     result = sock.connect_ex((hostname, port))
     sock.close()
     return {

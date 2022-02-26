@@ -21,17 +21,24 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 
 
 async def get_reply(message):
     try:
+        text = message.get('text') or ''
+        chat_id = message.get('chat', {}).get('id')
+
+        # Parse text
         command, args = None, []
-        if message.startswith('/'):
-            args = [x for x in message[1:].split(' ') if x]
+        if text.startswith('/'):
+            args = [x for x in text[1:].split(' ') if x]
             if args:
                 command = args.pop(0).lower()
 
+        # Process command
         if command == 'bca':
             username, password = base64.b64decode(args[0]).decode('utf-8').split(':')
             return _command_bca(username, password)
         if command == 'crypto':
             return _command_crypto()
+        if command == 'id':
+            return _command_id(chat_id)
         if command == 'ip':
             return _command_ip()
         if command == 'mc':
@@ -49,7 +56,6 @@ async def get_reply(message):
                 code, count = arg.split('=')
                 stock_map[code] = int(count)
             return await _command_stock(stock_map)
-
         return MSG_UNKNOWN
     except Exception as e:
         print(f'Error @ get_reply: {e}')
@@ -136,6 +142,12 @@ def _command_crypto():
         if k.endswith('idr')
     }
     return data
+
+
+def _command_id(chat_id):
+    return {
+        'ID': chat_id
+    }
 
 
 def _command_ip():

@@ -8,7 +8,7 @@ app = Sanic('Botler')
 
 
 @app.get('/bot')
-async def get(request):
+async def bot_get(request):
     text = request.args.get('text') or ''
 
     reply = await utils.get_reply({'text': text})
@@ -16,16 +16,23 @@ async def get(request):
 
 
 @app.post('/bot')
-async def post(request):
-    token = request.args.get('token')
+async def bot_post(request):
     message = request.json.get('message', {})
     chat_id = message.get('chat', {}).get('id')
 
     reply = await utils.get_reply(message)
-    if token and chat_id:
-        utils.send_reply(token, chat_id, reply)
+    if chat_id:
+        utils.send_reply(chat_id, reply)
         return empty()
     return json(reply, sort_keys=True)
+
+
+@app.post('/send')
+async def send_post(request):
+    chat_id = request.json.get('chat_id')
+    text = request.json.get('text')
+    utils.send_reply(chat_id, text)
+    return empty()
 
 
 if __name__ == '__main__':

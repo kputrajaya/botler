@@ -2,6 +2,7 @@ import asyncio
 import base64
 from datetime import datetime, timedelta
 import json
+import os
 import re
 import socket
 from urllib.error import HTTPError
@@ -20,10 +21,10 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 
 
 
 async def get_reply(message):
-    try:
-        text = message.get('text') or ''
-        chat_id = message.get('chat', {}).get('id')
+    text = message.get('text') or ''
+    chat_id = message.get('chat', {}).get('id')
 
+    try:
         # Parse text
         command, args = None, []
         if text.startswith('/'):
@@ -62,13 +63,16 @@ async def get_reply(message):
         return MSG_ERROR
 
 
-def send_reply(token, chat_id, text):
+def send_reply(chat_id, text):
+    if not chat_id or not text:
+        return
+
     try:
         if not isinstance(text, str):
             text = json.dumps(text, sort_keys=True, indent=2)
             text = f'```\n{text}\n```'
         _post(
-            f'https://api.telegram.org/bot{token}/sendMessage',
+            f'https://api.telegram.org/bot{os.environ["TELEGRAM_BOT_TOKEN"]}/sendMessage',
             {
                 'chat_id': chat_id,
                 'text': text,

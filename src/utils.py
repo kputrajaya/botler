@@ -21,21 +21,26 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 
 
 async def get_reply(message):
     try:
-        command, args = parse_message(message)
+        command, args = None, []
+        if message.startswith('/'):
+            args = [x for x in message[1:].split(' ') if x]
+            if args:
+                command = args.pop(0).lower()
+
         if command == 'bca':
             username, password = base64.b64decode(args[0]).decode('utf-8').split(':')
-            return get_bca_statements(username, password)
+            return _command_bca(username, password)
         if command == 'crypto':
-            return get_crypto_prices()
+            return _command_crypto()
         if command == 'ip':
-            return get_ip_address()
+            return _command_ip()
+        if command == 'mc':
+            hostname = args[0]
+            return _command_mc(hostname)
         if command == 'port':
             hostname = args[0]
             port = int(args[1])
-            return get_port_status(hostname, port)
-        if command == 'mc':
-            hostname = args[0]
-            return get_mc_server_status(hostname)
+            return _command_port(hostname, port)
         if command == 'start':
             return MSG_START
         if command == 'stock':
@@ -43,7 +48,8 @@ async def get_reply(message):
             for arg in args:
                 code, count = arg.split('=')
                 stock_map[code] = int(count)
-            return await get_stock_prices(stock_map)
+            return await _command_stock(stock_map)
+
         return MSG_UNKNOWN
     except Exception as e:
         print(f'Error @ get_reply: {e}')
@@ -55,7 +61,7 @@ def send_reply(token, chat_id, text):
         if not isinstance(text, str):
             text = json.dumps(text, sort_keys=True, indent=2)
             text = f'```\n{text}\n```'
-        post(
+        _post(
             f'https://api.telegram.org/bot{token}/sendMessage',
             {
                 'chat_id': chat_id,
@@ -67,16 +73,30 @@ def send_reply(token, chat_id, text):
         print(f'Error @ send_reply: {e}')
 
 
-def parse_message(message):
-    if message.startswith('/'):
-        args = [x for x in message[1:].split(' ') if x]
-        if args:
-            command = args.pop(0).lower()
-            return command, args
-    return None, []
+def _format_number(value):
+    return int(value) if int(value) < 1000 else '{:,}'.format(int(value))
 
 
-def get_bca_statements(username, password):
+def _get(url, use_json=True):
+    return _request(Request(url, headers={'User-Agent': USER_AGENT}), use_json)
+
+
+def _post(url, payload, headers={}, use_json=True):
+    data = (json.dumps(payload) if use_json else payload).encode('utf-8')
+    return _request(Request(url, headers={**headers, 'User-Agent': USER_AGENT}, data=data), use_json)
+
+
+def _request(request, use_json):
+    try:
+        with urlopen(request) as res:
+            encoding = res.info().get_content_charset('utf-8')
+            body = res.read().decode(encoding)
+            return json.loads(body) if use_json else body
+    except HTTPError as e:
+        raise ValueError(f'{e.code}: {e.read().decode()}')
+
+
+def _command_bca(username, password):
     from robobrowser import RoboBrowser
 
     browser = RoboBrowser(parser='html.parser', user_agent=USER_AGENT)
@@ -108,8 +128,8 @@ def get_bca_statements(username, password):
         browser.open(f'{hostname}/authentication.do?value(actions)=logout')
 
 
-def get_crypto_prices():
-    res = get('https://indodax.com/api/btc_idr/webdata')
+def _command_crypto():
+    res = _get('https://indodax.com/api/btc_idr/webdata')
     data = {
         k[:-3].upper(): _format_number(v)
         for k, v in res['prices'].items()
@@ -118,12 +138,41 @@ def get_crypto_prices():
     return data
 
 
-async def get_stock_prices(stock_map):
+def _command_ip():
+    res = _get('https://api.ipify.org/?format=json')
+    return {
+        'IP': res.get('ip')
+    }
+
+
+def _command_mc(hostname):
+    res = _get(f'https://api.mcsrvstat.us/1/{hostname}')
+    data = {
+        'HOSTNAME': res['hostname'],
+        'ONLINE': not res.get('offline', False),
+        'PLAYERS': res.get('players')
+    }
+    if not data['PLAYERS']:
+        data.pop('PLAYERS')
+    return data
+
+
+def _command_port(hostname, port):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(3)
+    result = sock.connect_ex((hostname, port))
+    sock.close()
+    return {
+        'OPEN': result == 0
+    }
+
+
+async def _command_stock(stock_map):
     price_map = {}
 
     @aioify
     def populate_price(code):
-        res = get(f'https://www.duniainvestasi.com/bei/summaries/{code}', use_json=False)
+        res = _get(f'https://www.duniainvestasi.com/bei/summaries/{code}', use_json=False)
         price_str = re.sub(
             r'^.+?<div class="span-3 summary_value last"><div[^>]*>([\d\,]+).+$',
             r'\1',
@@ -148,54 +197,6 @@ async def get_stock_prices(stock_map):
         'STOCKS': detail,
         'TOTAL': _format_number(total)
     }
-
-
-def get_ip_address():
-    res = get('https://api.ipify.org/?format=json')
-    return {
-        'IP': res.get('ip')
-    }
-
-
-def get_port_status(hostname, port):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.settimeout(3)
-    result = sock.connect_ex((hostname, port))
-    sock.close()
-    return {
-        'OPEN': result == 0
-    }
-
-
-def get_mc_server_status(hostname):
-    res = get(f'https://api.mcsrvstat.us/1/{hostname}')
-    data = {
-        'HOSTNAME': res['hostname'],
-        'ONLINE': not res.get('offline', False),
-        'PLAYERS': res.get('players')
-    }
-    if not data['PLAYERS']:
-        data.pop('PLAYERS')
-    return data
-
-
-def get(url, use_json=True):
-    return _request(Request(url, headers={'User-Agent': USER_AGENT}), use_json)
-
-
-def post(url, payload, headers={}, use_json=True):
-    data = (json.dumps(payload) if use_json else payload).encode('utf-8')
-    return _request(Request(url, headers={**headers, 'User-Agent': USER_AGENT}, data=data), use_json)
-
-
-def _request(request, use_json):
-    try:
-        with urlopen(request) as res:
-            encoding = res.info().get_content_charset('utf-8')
-            body = res.read().decode(encoding)
-            return json.loads(body) if use_json else body
-    except HTTPError as e:
-        raise ValueError(f'{e.code}: {e.read().decode()}')
 
 
 def _get_bca_statements(browser, backdate_week):
@@ -244,13 +245,13 @@ def _get_bca_statements(browser, backdate_week):
             raise ValueError('Transaction data is in unexpected format.')
 
         # Parse and attach to transactions
-        data = _parse_bca_transaction_data(cells, now)
+        data = _parse_bca_transaction(cells, now)
         transactions[data['date']] = transactions.get(data['date'], [])
         transactions[data['date']].append([data['description'], data['amount']])
     return transactions
 
 
-def _parse_bca_transaction_data(cells, now):
+def _parse_bca_transaction(cells, now):
     contents = [
         x.strip()
         for x in cells[1].contents
@@ -299,7 +300,3 @@ def _parse_bca_transaction_data(cells, now):
         'amount': amount,
         'description': description,
     }
-
-
-def _format_number(value):
-    return int(value) if int(value) < 1000 else '{:,}'.format(int(value))

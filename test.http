@@ -2,12 +2,22 @@ POST https://api.telegram.org/bot{token}/setWebhook?url=https://botler.g.kvn.pt/
 
 ###
 
+POST https://api.telegram.org/bot{token}/sendMessage
+Content-Type: application/json
+
+{
+  "chat_id": "{chat_id}",
+  "text": "Hello world"
+}
+
+###
+
 POST http://localhost:8080/bot?token={token}
 Content-Type: application/json
 
 {
   "message": {
-    "text": "/mc"
+    "text": "/ip"
   }
 }
 
@@ -18,6 +28,6 @@ Content-Type: application/json
 
 {
   "message": {
-    "text": "/stock ASII=10 BBCA=3 KAEF=5"
+    "text": "/stock ASII=10 BBCA=3"
   }
 }

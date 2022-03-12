@@ -1,5 +1,5 @@
 from sanic import Sanic
-from sanic.response import empty, json
+from sanic.response import empty, json, text
 
 import utils
 
@@ -33,6 +33,11 @@ async def send_post(request):
     text = request.json.get('text')
     utils.send_reply(chat_id, text)
     return empty()
+
+
+@app.post('/ping')
+async def ping_get(request):
+    return text('Pong')
 
 
 if __name__ == '__main__':

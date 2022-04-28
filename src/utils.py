@@ -232,7 +232,7 @@ def _get_bca_statements(browser, backdate_week):
     form = browser.get_form(method='post')
     form.action = 'accountstmt.do?value(actions)=acctstmtview'
     form_data = {
-        'r1': '1',
+        'value(r1)': '1',
         'value(D1)': '0',
         'value(startDt)': start_d,
         'value(startMt)': start_m,

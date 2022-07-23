@@ -36,7 +36,7 @@ async def send_post(request):
 
 
 @app.get('/ping')
-async def ping_get(request):
+async def ping_get(_):
     return text('Pong')
 
 

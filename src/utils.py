@@ -3,6 +3,7 @@ import base64
 from datetime import datetime, timedelta
 import json
 import os
+import random
 import re
 import socket
 from urllib.error import HTTPError
@@ -18,6 +19,98 @@ MSG_START = 'Hi there, open command list to see what I can help you with.'
 MSG_UNKNOWN = 'Hmm, I don\'t understand what you mean.'
 MSG_ERROR = 'Sorry, something went wrong.'
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0'
+ICEBREAKER_QUESTIONS = [
+    'Are you a morning person or a night person?',
+    'Are you a traveler or a homebody?',
+    'Are you reading anything interesting right now?',
+    'As a child, what did you want to be when you grew up?',
+    'Be honest, how often do you work from bed?',
+    'Do you have a dedicated office space at home?',
+    'Do you have a favorite breakfast?',
+    'Do you have a favorite plant?',
+    'Do you think you could live without your smartphone for 24 hours?',
+    'Favorite weird (but brilliant) food combo?',
+    'Have you ever met anyone famous?',
+    'Have you ever met your idol or someone you revere greatly?',
+    'Have you seen any good movies or shows lately?',
+    'How do you stay productive and motivated working virtually?',
+    'How many cities have you lived in during your life and which is your favorite?',
+    'How would your best friend describe you?',
+    'How would your enemy describe you?',
+    'If you could be any animal in the world, what animal would you choose to be?',
+    'If you could be any supernatural creature, what would you be and why?',
+    'If you could be guaranteed one thing in life (besides money), what would it be?',
+    'If you could be immortal, what age would you choose to stop aging at and why?',
+    'If you could be on a reality TV show, which one would you choose and why?',
+    'If you could change places with anyone in the world, who would it be and why?',
+    'If you could commit any crime and get away with it what would you choose and why?',
+    'If you could eliminate one thing from your daily routine, what would it be and why?',
+    'If you could go to Mars, would you? Why or why not?',
+    'If you could hang out with any cartoon character, who would you choose and why?',
+    'If you could have dinner with one person, dead or alive, who would it be and why?',
+    'If you could have someone follow you around all the time like a personal assistant, what would you have them do?',
+    'If you could have the power of teleportation right now, where would you go and why?',
+    'If you could instantly become an expert in something, what would it be?',
+    'If you could live anywhere in the world for a year, where would it be?',
+    'If you could magically become fluent in any language, what would it be?',
+    'If you could only use one piece of technology, what would it be?',
+    'If you could see one movie again for the first time, what would it be and why?',
+    'If you could travel anywhere in the world today, where would you go?',
+    'If you could write a book that was guaranteed to be a best seller, what would you write?',
+    'If you didn\'t have to work right now, what would you be doing instead?',
+    'If you had a time machine and could only use it once, would you go back in time or into the future?',
+    'If you had one free hour each day, what would you do?',
+    'If you had to delete all but 3 apps from your smartphone, which ones would you keep?',
+    'If you had to teach a class on one thing, what would you teach?',
+    'If you were to donate to one charity, what would it be and why?',
+    'If you were to host your own talk show, who would be your first guest?',
+    'If your life were a TV show, what genre would it be?',
+    'What book, movie read/seen recently you would recommend and why?',
+    'What breed of dog would you be?',
+    'What does your favorite shirt look like?',
+    'What does your morning routine look like when working from home?',
+    'What is the best gift ever you ever received?',
+    'What is your absolute dream job?',
+    'What is your cellphone wallpaper?',
+    'What is your favorite beverage?',
+    'What is your favorite dessert?',
+    'What is your favorite food?',
+    'What is your favorite hobby or pastime?',
+    'What is your favorite item you\'ve bought this year?',
+    'What is your favorite magical or mythological animal?',
+    'What is your favorite meal to cook and why?',
+    'What is your favorite quotation of all time?',
+    'What is your favorite time of the day and why?',
+    'What is your favorite TV show?',
+    'What is your most used emoji?',
+    'What is your useless superpower?',
+    'What languages do you know how to speak?',
+    'What sport would you compete in if you were in the Olympics?',
+    'What was the worst job you ever had?',
+    'What was your favorite game to play as a child?',
+    'What was your first job?',
+    'What would the title of your autobiography be?',
+    'What would your dream house be like?',
+    'What\'s is one thing we don\'t know about you?',
+    'What\'s the best piece of advice you\'ve ever been given?',
+    'What\'s the first thing you remember buying with your own money?',
+    'What\'s the hardest part about working virtually for you?',
+    'What\'s your favorite place of all the places you\'ve travelled?',
+    'What\'s your favorite tradition or holiday?',
+    'When does time pass by way too quickly?',
+    'When does time seem to crawl by at a snail\'s pace?',
+    'When you die, what do you want to be remembered for?',
+    'Where was the last place you went for the first time?',
+    'Which one do you prefer, coffee or tea?',
+    'Which one do you prefer, teleportation or flying?',
+    'Which one fictional place would you most like to visit?',
+    'Who is your favorite fictional hero or heroine?',
+    'Who was most influential in your life as a kid?',
+    'Would you rather be able to fly or turn invisible?',
+    'Would you rather give up your smartphone or your computer?',
+    'Would you rather lose all of your money or all of your pictures?',
+    'You have a time machine. When (and where) would you like to visit first?',
+]
 
 
 async def get_reply(message):
@@ -38,6 +131,8 @@ async def get_reply(message):
             return _command_bca(username, password)
         if command == 'crypto':
             return _command_crypto()
+        if command == 'icebreaker':
+            return _command_icebreaker()
         if command == 'id':
             return _command_id(chat_id)
         if command == 'ip':
@@ -148,6 +243,12 @@ def _command_crypto():
     return data
 
 
+def _command_icebreaker():
+    return {
+        'QUESTION': random.choice(ICEBREAKER_QUESTIONS)
+    }
+
+
 def _command_id(chat_id):
     return {
         'ID': chat_id
@@ -188,14 +289,8 @@ async def _command_stock(stock_map):
 
     @aioify
     def populate_price(code):
-        res = _get(f'https://www.duniainvestasi.com/bei/summaries/{code}', use_json=False)
-        price_str = re.sub(
-            r'^.+?<div class="span-3 summary_value last"><div[^>]*>([\d\,]+).+$',
-            r'\1',
-            res,
-            flags=re.M | re.S)
-        price = int(price_str.replace(',', ''))
-        price_map[code] = price
+        res = _get(f'https://pasardana.id/api/Stock/GetByCode?code={code}&username=anonymous')
+        price_map[code] = res['LastData']['AdjustedClosingPrice']
 
     tasks = [populate_price(code) for code in stock_map.keys()]
     await asyncio.gather(*tasks)

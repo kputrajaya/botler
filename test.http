@@ -1,8 +1,8 @@
-POST https://api.telegram.org/bot{token}/setWebhook?url=https://botler.g.kvn.pt/bot?token={token}
+POST https://api.telegram.org/bot{token}/setWebhook?url=https://botler.kvn.ovh/bot?token={token}
 
 ###
 
-POST https://botler.g.kvn.pt/bot
+POST https://botler.kvn.ovh/bot
 Content-Type: application/json
 
 {
@@ -13,7 +13,7 @@ Content-Type: application/json
 
 ###
 
-POST https://botler.g.kvn.pt/bot
+POST https://botler.kvn.ovh/bot
 Content-Type: application/json
 
 {
@@ -24,7 +24,7 @@ Content-Type: application/json
 
 ###
 
-POST https://botler.g.kvn.pt/send
+POST https://botler.kvn.ovh/send
 Content-Type: application/json
 
 {

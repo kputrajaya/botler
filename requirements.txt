@@ -14,8 +14,8 @@ pycodestyle==2.8.0
 pyflakes==2.4.0
 requests==2.27.1
 robobrowser==0.5.3
-sanic==21.12.1
-sanic-routing==0.7.2
+sanic==22.6.1
+sanic-routing==22.3.0
 six==1.16.0
 soupsieve==2.3.1
 stdlib-list==0.8.0

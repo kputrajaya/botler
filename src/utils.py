@@ -118,41 +118,12 @@ async def get_reply(message):
     chat_id = message.get('chat', {}).get('id')
 
     try:
-        # Parse text
         command, args = None, []
         if text.startswith('/'):
             args = [x for x in text[1:].split(' ') if x]
             if args:
                 command = args.pop(0).lower()
-
-        # Process command
-        if command == 'bca':
-            username, password = base64.b64decode(args[0]).decode('utf-8').split(':')
-            return _command_bca(username, password)
-        if command == 'crypto':
-            return _command_crypto()
-        if command == 'icebreaker':
-            return _command_icebreaker()
-        if command == 'id':
-            return _command_id(chat_id)
-        if command == 'ip':
-            return _command_ip()
-        if command == 'mc':
-            hostname = args[0]
-            return _command_mc(hostname)
-        if command == 'port':
-            hostname = args[0]
-            port = int(args[1])
-            return _command_port(hostname, port)
-        if command == 'start':
-            return MSG_START
-        if command == 'stock':
-            stock_map = {}
-            for arg in args:
-                code, count = arg.split('=')
-                stock_map[code] = int(count)
-            return await _command_stock(stock_map)
-        return MSG_UNKNOWN
+        return await _command(command, args, chat_id)
     except Exception as e:
         print(f'Error @ get_reply: {e}')
         return MSG_ERROR
@@ -199,6 +170,36 @@ def _request(request, use_json):
             return json.loads(body) if use_json else body
     except HTTPError as e:
         raise ValueError(f'{e.code}: {e.read().decode()}')
+
+
+async def _command(command, args, chat_id):
+    if command == 'bca':
+        username, password = base64.b64decode(args[0]).decode('utf-8').split(':')
+        return _command_bca(username, password)
+    if command == 'crypto':
+        return _command_crypto()
+    if command == 'icebreaker':
+        return _command_icebreaker()
+    if command == 'id':
+        return _command_id(chat_id)
+    if command == 'ip':
+        return _command_ip()
+    if command == 'mc':
+        hostname = args[0]
+        return _command_mc(hostname)
+    if command == 'port':
+        hostname = args[0]
+        port = int(args[1])
+        return _command_port(hostname, port)
+    if command == 'start':
+        return MSG_START
+    if command == 'stock':
+        stock_map = {}
+        for arg in args:
+            code, count = arg.split('=')
+            stock_map[code] = int(count)
+        return await _command_stock(stock_map)
+    return MSG_UNKNOWN
 
 
 def _command_bca(username, password):

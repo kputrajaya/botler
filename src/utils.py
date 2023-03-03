@@ -1,10 +1,7 @@
 import asyncio
-import base64
-from datetime import datetime, timedelta
 import json
 import os
 import random
-import re
 import socket
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
@@ -173,9 +170,6 @@ def _request(request, use_json):
 
 
 async def _command(command, args, chat_id):
-    if command == 'bca':
-        username, password = base64.b64decode(args[0]).decode('utf-8').split(':')
-        return _command_bca(username, password)
     if command == 'crypto':
         return _command_crypto()
     if command == 'icebreaker':
@@ -200,38 +194,6 @@ async def _command(command, args, chat_id):
             stock_map[code] = int(count)
         return await _command_stock(stock_map)
     return MSG_UNKNOWN
-
-
-def _command_bca(username, password):
-    from robobrowser import RoboBrowser
-
-    browser = RoboBrowser(parser='html.parser', user_agent=USER_AGENT)
-    hostname = 'https://m.klikbca.com'
-
-    try:
-        # Login
-        browser.open(f'{hostname}/login.jsp')
-        form = browser.get_form(method='post')
-        form['value(user_id)'].value = username
-        form['value(pswd)'].value = password
-        browser.submit_form(form)
-        if 'accountstmt' not in browser.response.text:
-            raise ValueError('Failed to login.')
-
-        # Get balance then statements
-        form = browser.get_form(method='post')
-        form.action = 'balanceinquiry.do'
-        browser.submit_form(form)
-        balances = browser.select('table[cellpadding="5"] td[align="right"] b')
-        if not balances:
-            raise ValueError('Failed to get balance.')
-        result = {'BALANCE': balances[0].contents}
-        for i in range(4):
-            result = {**result, **_get_bca_statements(browser, i)}
-        return result
-    finally:
-        # Logout
-        browser.open(f'{hostname}/authentication.do?value(actions)=logout')
 
 
 def _command_crypto():
@@ -308,107 +270,4 @@ async def _command_stock(stock_map):
     return {
         'STOCKS': detail,
         'TOTAL': _format_number(total)
-    }
-
-
-def _get_bca_statements(browser, backdate_week):
-    from robobrowser.forms.fields import Input
-
-    now = datetime.now() + timedelta(hours=7)
-    end_date = now - timedelta(days=backdate_week * 7)
-    start_date = end_date - timedelta(days=6)
-    start_d = start_date.strftime('%d')
-    start_m = start_date.strftime('%m')
-    start_y = start_date.strftime('%Y')
-    end_d = end_date.strftime('%d')
-    end_m = end_date.strftime('%m')
-    end_y = end_date.strftime('%Y')
-
-    # Go to statements
-    form = browser.get_form(method='post')
-    form.action = 'accountstmt.do?value(actions)=acctstmtview'
-    form_data = {
-        'value(r1)': '1',
-        'value(D1)': '0',
-        'value(startDt)': start_d,
-        'value(startMt)': start_m,
-        'value(startYr)': start_y,
-        'value(endDt)': end_d,
-        'value(endMt)': end_m,
-        'value(endYr)': end_y,
-    }
-    for key, value in form_data.items():
-        form.add_field(Input(f'<input name="{key}" value="{value}"/>'))
-    browser.submit_form(form)
-    if 'IDR' not in browser.response.text:
-        raise ValueError('Failed to get statements data.')
-
-    # Get data tables
-    tables = browser.select('table[cellpadding="3"] table')
-    if len(tables) != 3:
-        raise ValueError('Statements data is in unexpected format.')
-
-    # Parse transactions
-    transaction_table = tables[1]
-    transactions = {}
-    for transaction in transaction_table.select('tr')[1:]:
-        cells = transaction.select('td')
-        if len(cells) < 3:
-            raise ValueError('Transaction data is in unexpected format.')
-
-        # Parse and attach to transactions
-        data = _parse_bca_transaction(cells, now)
-        transactions[data['date']] = transactions.get(data['date'], [])
-        transactions[data['date']].append([data['description'], data['amount']])
-    return transactions
-
-
-def _parse_bca_transaction(cells, now):
-    contents = [
-        x.strip()
-        for x in cells[1].contents
-        if x and isinstance(x, str) and x[0] not in ('<', '\n')]
-
-    # Prepare date
-    date = cells[0].text.strip()
-    if date == 'PEND':
-        date_parsed = now
-    else:
-        current_year = int(now.strftime('%Y'))
-        date_parsed = datetime.strptime(f'{current_year}/{date}', '%Y/%d/%m')
-        if date_parsed > now:
-            date_parsed = date_parsed.replace(year=current_year - 1)
-    date = date_parsed.strftime('%Y/%m/%d')
-
-    # Prepare amount
-    amount = contents[-1]
-    if cells[2].text == 'DB':
-        amount = f'({amount})'
-
-    # Prepare description
-    description = ' ' + ' '.join(contents[:-2]) + ' '
-    for pattern, sub in (
-        (r' M-BCA ', ' '),
-        (r' KARTU (DEBIT|KREDIT) ', ' '),
-        (r' (DB|DR|CR) ', ' '),
-        (r' (BYR VIA|TRSF) E-BANKING ', ' '),
-        (r' KR OTOMATIS ', ' '),
-        (r' TRANSFER ', ' '),
-        (r' SWITCHING ', ' '),
-        (r' TANGGAL :', ' '),
-        (r' ([\d]{2}/[\d]{2} )+', ' '),
-        (r' [\d]{3,5}/FT[A-Z]{2,4}/WS[\d]{4,6} ', ' '),
-        (r' WSID[\d]{7,8} ', ' '),
-        (r' [\d]{2,} ', ' '),
-        (r' (- )+', ' '),
-        (rf' {amount.replace(",", "")} ', ' '),
-        (r'[\s]+', ' '),
-    ):
-        description = re.sub(pattern, sub, description)
-    description = description.upper().strip()
-
-    return {
-        'date': date,
-        'amount': amount,
-        'description': description,
     }
